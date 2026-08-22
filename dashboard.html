@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Market Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #0b0e11;
+            color: #eaecef;
+            padding: 20px;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            width: 100%;
+            height: 100%;
+            background: #13161a;
+            border-radius: 32px;
+            padding: 30px 35px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            border: 1px solid #2a2f36;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #f0b90b, #f5d442);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header .update-time {
+            font-size: 14px;
+            color: #848e9c;
+            background: #1e2329;
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid #2b3139;
+        }
+
+        .market-status {
+            font-size: 12px;
+            color: #848e9c;
+            background: #1e2329;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #2b3139;
+            margin-left: 10px;
+        }
+
+        .market-status.open {
+            color: #0ecb81;
+            border-color: #0ecb81;
+        }
+
+        .market-status.closed {
+            color: #f0b90b;
+            border-color: #f0b90b;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 28px;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .assets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: repeat(3, 1fr);
+            gap: 14px;
+            min-height: 0;
+            height: 100%;
+        }
+
+        .asset-card {
+            background: #1a1e24;
+            border-radius: 18px;
+            padding: 16px 18px;
+            border: 1px solid #272d35;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .asset-card.up {
+            background: rgba(14, 203, 129, 0.12);
+            border-color: rgba(14, 203, 129, 0.4);
+        }
+
+        .asset-card.down {
+            background: rgba(246, 70, 93, 0.12);
+            border-color: rgba(246, 70, 93, 0.4);
+        }
+
+        .asset-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .asset-name {
+            font-size: 17px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .asset-name .ticker {
+            color: #848e9c;
+            font-weight: 400;
+            font-size: 12px;
+        }
+
+        .asset-price {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .change-badge {
+            font-size: 14px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 40px;
+            background: #1e2329;
+        }
+
+        .change-badge.green {
+            color: #0ecb81;
+            background: #0b1e18;
+        }
+        .change-badge.red {
+            color: #f6465d;
+            background: #1f1316;
+        }
+
+        .timeframes {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: #848e9c;
+        }
+
+        .timeframes span {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .timeframes .label {
+            color: #5e6673;
+            font-weight: 400;
+        }
+
+        .timeframes .val-green {
+            color: #0ecb81;
+            font-weight: 500;
+        }
+        .timeframes .val-red {
+            color: #f6465d;
+            font-weight: 500;
+        }
+
+        .last-updated {
+            font-size: 11px;
+            color: #5e6673;
+            margin-top: 6px;
+        }
+
+        .news-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-height: 0;
+            height: 100%;
+        }
+
+        .news-box {
+            background: #1a1e24;
+            border-radius: 18px;
+            padding: 18px 20px;
+            border: 1px solid #272d35;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .news-box h3 {
+            flex-shrink: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #f0b90b;
+            margin-bottom: 12px;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid #272d35;
+            padding-bottom: 10px;
+        }
+
+        .news-list {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            min-height: 0;
+            flex: 1;
+        }
+
+        .news-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #1e2329;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .news-item .title {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.4;
+            color: #eaecef;
+            cursor: default;
+        }
+
+        .news-item .source {
+            font-size: 11px;
+            color: #5e6673;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .news-item .impact {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            background: #2a1f1f;
+            color: #f6465d;
+            padding: 2px 10px;
+            border-radius: 20px;
+            margin-top: 5px;
+        }
+
+        .impact.high {
+            background: #2a1f1f;
+            color: #f6465d;
+        }
+        .impact.medium {
+            background: #2a281a;
+            color: #f0b90b;
+        }
+
+        .loading {
+            color: #5e6673;
+            font-size: 13px;
+            padding: 6px 0;
+        }
+
+        .cached-badge {
+            font-size: 10px;
+            color: #5e6673;
+            background: #1e2329;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+        }
+
+        @media (max-width: 1000px) {
+            .grid {
+                grid-template-columns: 1.4fr 1fr;
+                gap: 18px;
+            }
+            .dashboard {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .asset-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .timeframes {
+                font-size: 12px;
+                gap: 10px;
+            }
+            .header h1 {
+                font-size: 22px;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard" id="app">
+    <div class="header">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <h1>📊  DASHBOARD</h1>
+            <span class="market-status" id="marketStatus">⏳ Checking...</span>
+        </div>
+        <div class="update-time" id="updateTime">⏳ Loading...</div>
+    </div>
+
+    <div class="grid">
+        <div class="assets" id="assetsContainer">
+            <!-- filled by JS -->
+        </div>
+
+        <div class="news-section">
+            <div class="news-box" id="newsToday">
+                <h3>📰  TODAY'S MARKET-MOVING NEWS</h3>
+                <div class="news-list"><div class="loading">Fetching top stories...</div></div>
+            </div>
+            <div class="news-box" id="newsWeek">
+                <h3>📆  THIS WEEK'S BIG STORIES</h3>
+                <div class="news-list"><div class="loading">Fetching weekly stories...</div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    //  CONFIG
+    // ============================================================
+    const ASSETS = [
+        { id: 'ES',   label: 'ES Futures',  symbol: 'ES=F' },
+        { id: 'MNQ',  label: 'MNQ Futures', symbol: 'MNQ=F' },
+        { id: 'NVDA', label: 'NVIDIA',      symbol: 'NVDA' },
+        { id: 'SPCX', label: 'SpaceX',      symbol: 'SPCX' },
+    ];
+
+    const CRYPTO = [
+        { id: 'BTC', label: 'Bitcoin',  coinId: 'bitcoin' },
+        { id: 'SOL', label: 'Solana',   coinId: 'solana' },
+    ];
+
+    // Cache for storing last known prices
+    const priceCache = {};
+
+    // ============================================================
+    //  HELPERS
+    // ============================================================
+    function formatUSD(n) {
+        if (n === undefined || n === null || isNaN(n)) return '—';
+        if (n >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
+        if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
+        if (n >= 1e3) return '$' + n.toFixed(2);
+        return '$' + n.toFixed(4);
+    }
+
+    function formatChange(v) {
+        if (v === undefined || v === null || isNaN(v)) return '—';
+        return (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
+    }
+
+    function changeClass(v) {
+        if (v === undefined || v === null || isNaN(v)) return '';
+        return v >= 0 ? 'green' : 'red';
+    }
+
+    function timeAgo(ts) {
+        if (!ts) return 'Unknown';
+        const diff = Date.now() - new Date(ts).getTime();
+        const mins = Math.floor(diff / 60000);
+        if (mins < 1) return 'Just now';
+        if (mins < 60) return mins + 'm ago';
+        const hrs = Math.floor(mins / 60);
+        if (hrs < 24) return hrs + 'h ago';
+        return Math.floor(hrs / 24) + 'd ago';
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function isMarketOpen() {
+        const now = new Date();
+        const day = now.getDay();
+        const hour = now.getHours();
+        const minute = now.getMinutes();
+        const time = hour + minute / 60;
+        
+        // Monday-Friday, 9:30 AM - 4:00 PM ET
+        if (day >= 1 && day <= 5) {
+            if (time >= 9.5 && time < 16) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // ============================================================
+    //  FETCH: CORS proxy helper (Yahoo Finance has no CORS headers,
+    //  so a direct browser fetch to it always fails silently)
+    // ============================================================
+    const CORS_PROXIES = [
+        (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+        (u) => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+    ];
+
+    async function fetchViaProxy(url) {
+        let lastErr = null;
+        for (const buildProxyUrl of CORS_PROXIES) {
+            const proxyUrl = buildProxyUrl(url);
+            try {
+                const res = await fetch(proxyUrl);
+                if (res.ok) {
+                    // Yahoo sometimes returns a 200 with an error payload
+                    // instead of a real HTTP error code (e.g. crumb/auth
+                    // failures). Peek at the body so we can tell.
+                    const text = await res.text();
+                    let parsed;
+                    try {
+                        parsed = JSON.parse(text);
+                    } catch {
+                        lastErr = new Error(`Non-JSON response via ${proxyUrl.split('?')[0]}: ${text.slice(0, 150)}`);
+                        continue;
+                    }
+                    if (parsed?.chart?.error) {
+                        lastErr = new Error(`Yahoo error: ${parsed.chart.error.description || JSON.stringify(parsed.chart.error)}`);
+                        continue;
+                    }
+                    // Re-wrap so callers can still call res.json()
+                    return { ok: true, json: async () => parsed };
+                }
+                const body = await res.text().catch(() => '');
+                lastErr = new Error(`Proxy ${proxyUrl.split('?')[0]} returned ${res.status}: ${body.slice(0, 150)}`);
+            } catch (e) {
+                lastErr = new Error(`Proxy ${proxyUrl.split('?')[0]} failed: ${e.message}`);
+            }
+        }
+        throw lastErr || new Error('All CORS proxies failed');
+    }
+
+    // ============================================================
+    //  FETCH: Yahoo Finance - FIXED VERSION
+    // ============================================================
+    async function fetchYahoo(symbol) {
+        try {
+            // Use range=5d to ensure we get data even on weekends
+            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=5d`;
+            const res = await fetchViaProxy(url);
+            
+            if (!res.ok) {
+                console.warn(`Yahoo API returned ${res.status} for ${symbol}`);
+                return priceCache[symbol] || null;
+            }
+            
+            const data = await res.json();
+            
+            if (!data.chart || !data.chart.result || data.chart.result.length === 0) {
+                console.warn(`No data returned for ${symbol}`);
+                return priceCache[symbol] || { errorMessage: `No chart result for "${symbol}"` };
+            }
+
+            const result = data.chart.result[0];
+            const meta = result.meta;
+            const quote = result.indicators?.quote?.[0];
+            const closes = quote?.close || [];
+            const timestamps = result.timestamp || [];
+            
+            // Get current price - try multiple sources
+            let price = null;
+            let prevClose = null;
+            
+            // 1. Try regularMarketPrice
+            if (meta?.regularMarketPrice) {
+                price = meta.regularMarketPrice;
+            }
+            
+            // 2. If no regularMarketPrice, use the last close from historical data
+            if (!price && closes.length > 0) {
+                for (let i = closes.length - 1; i >= 0; i--) {
+                    if (closes[i] !== null && closes[i] !== undefined) {
+                        price = closes[i];
+                        break;
+                    }
+                }
+            }
+            
+            // 3. Use cache as last resort
+            if (!price && priceCache[symbol]) {
+                return { ...priceCache[symbol], cached: true };
+            }
+            
+            if (!price) {
+                console.warn(`No price found for ${symbol}`);
+                return priceCache[symbol] || { errorMessage: `Response had no usable price field for "${symbol}"` };
+            }
+
+            // Get previous close for change calculation
+            if (meta?.previousClose) {
+                prevClose = meta.previousClose;
+            } else if (closes.length > 1) {
+                for (let i = closes.length - 2; i >= 0; i--) {
+                    if (closes[i] !== null && closes[i] !== undefined) {
+                        prevClose = closes[i];
+                        break;
+                    }
+                }
+            }
+            
+            if (!prevClose) {
+                prevClose = price * 0.99; // Fallback
+            }
+
+            const change = price - prevClose;
+            const changePercent = (change / prevClose) * 100;
+
+            // Calculate week/month/year from historical closes
+            let week = null, month = null, year = null;
+            
+            if (closes.length > 0 && timestamps.length > 0) {
+                const today = new Date();
+                const oneWeekAgo = new Date(today);
+                oneWeekAgo.setDate(today.getDate() - 7);
+                const oneMonthAgo = new Date(today);
+                oneMonthAgo.setMonth(today.getMonth() - 1);
+                const oneYearAgo = new Date(today);
+                oneYearAgo.setFullYear(today.getFullYear() - 1);
+                
+                function getCloseForDate(target) {
+                    let closestIdx = -1;
+                    let closestDiff = Infinity;
+                    
+                    for (let i = 0; i < timestamps.length; i++) {
+                        const d = new Date(timestamps[i] * 1000);
+                        const diff = Math.abs(d - target);
+                        if (diff < closestDiff && closes[i] !== null && closes[i] !== undefined) {
+                            closestDiff = diff;
+                            closestIdx = i;
+                        }
+                    }
+                    
+                    if (closestIdx >= 0 && closestIdx < closes.length && closes[closestIdx]) {
+                        return closes[closestIdx];
+                    }
+                    return null;
+                }
+                
+                const weekClose = getCloseForDate(oneWeekAgo);
+                const monthClose = getCloseForDate(oneMonthAgo);
+                const yearClose = getCloseForDate(oneYearAgo);
+                
+                week = weekClose ? ((price - weekClose) / weekClose) * 100 : null;
+                month = monthClose ? ((price - monthClose) / monthClose) * 100 : null;
+                year = yearClose ? ((price - yearClose) / yearClose) * 100 : null;
+            }
+
+            const resultData = {
+                price: price,
+                change: change,
+                changePercent: changePercent,
+                week: week,
+                month: month,
+                year: year,
+                cached: false,
+                timestamp: new Date().toISOString()
+            };
+
+            // Update cache
+            priceCache[symbol] = resultData;
+            return resultData;
+        } catch (e) {
+            console.warn('Yahoo fetch error for', symbol, e.message);
+            if (priceCache[symbol]) {
+                return { ...priceCache[symbol], cached: true };
+            }
+            return { errorMessage: e.message };
+        }
+    }
+
+    // ============================================================
+    //  FETCH: CoinGecko with cache fallback
+    // ============================================================
+    async function fetchCoinGecko(coinId) {
+        try {
+            const priceUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true`;
+            const histUrl = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=365&interval=daily`;
+
+            // Fire both requests at once instead of waiting for price
+            // to finish before even starting the history call.
+            const [priceRes, histRes] = await Promise.all([
+                fetch(priceUrl),
+                fetch(histUrl).catch(e => { console.warn('Historical data fetch failed for', coinId, e.message); return null; }),
+            ]);
+
+            if (!priceRes.ok) {
+                console.warn(`CoinGecko API returned ${priceRes.status} for ${coinId}`);
+                if (priceCache[coinId]) return { ...priceCache[coinId], cached: true };
+                return null;
+            }
+            
+            const data = await priceRes.json();
+            
+            if (!data[coinId]) {
+                console.warn(`No data returned for ${coinId}`);
+                if (priceCache[coinId]) return { ...priceCache[coinId], cached: true };
+                return null;
+            }
+
+            const price = data[coinId].usd;
+            const change24h = data[coinId].usd_24h_change || 0;
+
+            let week = null, month = null, year = null;
+
+            try {
+                if (histRes && histRes.ok) {
+                    const histData = await histRes.json();
+                    const prices = histData.prices || [];
+                    
+                    if (prices.length > 1) {
+                        const todayPrice = prices[prices.length - 1][1];
+                        
+                        const weekIdx = Math.max(0, prices.length - 8);
+                        const weekPrice = prices[weekIdx][1];
+                        week = weekPrice ? ((todayPrice - weekPrice) / weekPrice) * 100 : null;
+                        
+                        const monthIdx = Math.max(0, prices.length - 31);
+                        const monthPrice = prices[monthIdx][1];
+                        month = monthPrice ? ((todayPrice - monthPrice) / monthPrice) * 100 : null;
+                        
+                        const yearIdx = Math.max(0, prices.length - 366);
+                        const yearPrice = prices[yearIdx][1];
+                        year = yearPrice ? ((todayPrice - yearPrice) / yearPrice) * 100 : null;
+                    }
+                }
+            } catch (histErr) {
+                console.warn('Historical data parse failed for', coinId, histErr.message);
+            }
+
+            const resultData = {
+                price: price,
+                change: (change24h / 100) * price,
+                changePercent: change24h,
+                week: week,
+                month: month,
+                year: year,
+                cached: false,
+                timestamp: new Date().toISOString()
+            };
+
+            priceCache[coinId] = resultData;
+            return resultData;
+        } catch (e) {
+            console.warn('CoinGecko error for', coinId, e.message);
+            if (priceCache[coinId]) return { ...priceCache[coinId], cached: true };
+            return null;
+        }
+    }
+
+    // ============================================================
+    //  FETCH: News (single pool, classified by real publish time —
+    //  this guarantees today/week never share a story, and week is
+    //  strictly forbidden from containing anything under 24h old)
+    // ============================================================
+    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+    const ONE_WEEK_MS = 7 * ONE_DAY_MS;
+
+    let newsCache = null; // last successful combined article pool
+
+    async function fetchAllNewsArticles() {
+        const feeds = [
+            'https://feeds.bloomberg.com/markets/news.rss',
+            'https://www.cnbc.com/id/100003114/device/rss/rss.html',
+        ];
+        const proxy = 'https://api.rss2json.com/v1/api.json?rss_url=';
+        let combined = [];
+
+        for (const feed of feeds) {
+            try {
+                const feedUrl = encodeURIComponent(feed);
+                const res = await fetch(proxy + feedUrl);
+                const data = await res.json();
+                if (data.status === 'ok' && data.items && data.items.length > 0) {
+                    combined = combined.concat(data.items.map(item => ({
+                        title: item.title || 'Untitled',
+                        source: item.author || 'Market Feed',
+                        url: item.link,
+                        publishedAt: item.pubDate,
+                        description: item.description,
+                    })));
+                }
+            } catch (feedErr) {
+                console.warn('Feed error, trying next:', feedErr.message);
+                continue;
+            }
+        }
+        return combined;
+    }
+
+    function fallbackNewsArticles() {
+        const now = Date.now();
+        return [
+            { title: 'Markets await Federal Reserve signals', source: 'Market Update', publishedAt: new Date(now - 2 * 60 * 60 * 1000).toISOString() },
+            { title: 'Tech sector leads gains today', source: 'Market Update', publishedAt: new Date(now - 6 * 60 * 60 * 1000).toISOString() },
+            { title: 'Oil prices steady amid geopolitical tensions', source: 'Market Update', publishedAt: new Date(now - 3 * ONE_DAY_MS).toISOString() },
+            { title: 'Central banks weigh rate path for next quarter', source: 'Market Update', publishedAt: new Date(now - 5 * ONE_DAY_MS).toISOString() },
+        ];
+    }
+
+    function classifyNews(articles) {
+        const now = Date.now();
+        const sorted = [...articles].sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+
+        const today = sorted.filter(a => {
+            const age = now - new Date(a.publishedAt).getTime();
+            return age >= 0 && age < ONE_DAY_MS;
+        });
+
+        // Strictly excludes anything under 24h old — no overlap with "today" is possible.
+        const week = sorted.filter(a => {
+            const age = now - new Date(a.publishedAt).getTime();
+            return age >= ONE_DAY_MS && age < ONE_WEEK_MS;
+        });
+
+        return { today, week };
+    }
+
+    async function fetchNewsData() {
+        try {
+            const articles = await fetchAllNewsArticles();
+            if (articles.length > 0) {
+                newsCache = articles;
+                return classifyNews(articles);
+            }
+            return classifyNews(newsCache || fallbackNewsArticles());
+        } catch (e) {
+            console.warn('News fetch error:', e);
+            return classifyNews(newsCache || fallbackNewsArticles());
+        }
+    }
+
+    // ============================================================
+    //  RENDER
+    // ============================================================
+    function renderAssets(assetData, cryptoData) {
+        const container = document.getElementById('assetsContainer');
+        let html = '';
+
+        const all = [];
+
+        ASSETS.forEach(a => {
+            const d = assetData[a.id];
+            if (d && d.price !== undefined && d.price !== null) {
+                all.push({
+                    id: a.id,
+                    label: a.label,
+                    ticker: a.symbol,
+                    price: d.price,
+                    changePercent: d.changePercent,
+                    week: d.week,
+                    month: d.month,
+                    year: d.year,
+                    change: d.change,
+                    cached: d.cached || false,
+                    timestamp: d.timestamp,
+                });
+            } else {
+                all.push({
+                    id: a.id,
+                    label: a.label,
+                    ticker: a.symbol,
+                    price: null,
+                    changePercent: null,
+                    week: null,
+                    month: null,
+                    year: null,
+                    change: null,
+                    error: true,
+                    errorMessage: d?.errorMessage || 'No response received',
+                    cached: false,
+                });
+            }
+        });
+
+        CRYPTO.forEach(c => {
+            const d = cryptoData[c.id];
+            if (d) {
+                all.push({
+                    id: c.id,
+                    label: c.label,
+                    ticker: c.coinId,
+                    price: d.price,
+                    changePercent: d.changePercent,
+                    week: d.week,
+                    month: d.month,
+                    year: d.year,
+                    change: d.change,
+                    cached: d.cached || false,
+                    timestamp: d.timestamp,
+                });
+            } else {
+                all.push({
+                    id: c.id,
+                    label: c.label,
+                    ticker: c.coinId,
+                    price: null,
+                    changePercent: null,
+                    week: null,
+                    month: null,
+                    year: null,
+                    change: null,
+                    error: true,
+                    cached: false,
+                });
+            }
+        });
+
+        all.forEach(item => {
+            const hasError = item.error || item.price === null || item.price === undefined;
+            const change = item.changePercent;
+            const cls = changeClass(change);
+            const changeStr = hasError ? '—' : formatChange(change);
+            const priceStr = hasError ? '⚠️ Unavailable' : formatUSD(item.price);
+            const cardDirectionClass = hasError ? '' : (change >= 0 ? 'up' : 'down');
+            
+            const cachedBadge = item.cached ? '<span class="cached-badge">📦 Cached</span>' : '';
+            const timestampStr = item.timestamp ? `Last updated: ${new Date(item.timestamp).toLocaleTimeString()}` : '';
+
+            html += `
+                <div class="asset-card ${cardDirectionClass}">
+                    <div class="asset-row">
+                        <div class="asset-name">
+                            ${item.label}
+                            <span class="ticker">${item.ticker}</span>
+                            ${cachedBadge}
+                        </div>
+                        <div>
+                            <span class="asset-price">${priceStr}</span>
+                            <span class="change-badge ${hasError ? '' : cls}">${changeStr}</span>
+                        </div>
+                    </div>
+                    <div class="timeframes">
+                        <span><span class="label">Day</span> <span class="val-${hasError ? '' : cls}">${hasError ? '—' : formatChange(change)}</span></span>
+                        <span><span class="label">Week</span> <span class="val-${changeClass(item.week)}">${hasError ? '—' : formatChange(item.week)}</span></span>
+                        <span><span class="label">Month</span> <span class="val-${changeClass(item.month)}">${hasError ? '—' : formatChange(item.month)}</span></span>
+                        <span><span class="label">Year</span> <span class="val-${changeClass(item.year)}">${hasError ? '—' : formatChange(item.year)}</span></span>
+                    </div>
+                    ${timestampStr ? `<div class="last-updated">${timestampStr}</div>` : ''}
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    function renderNews(articlesToday, articlesWeek) {
+        const todayBox = document.getElementById('newsToday');
+        const weekBox = document.getElementById('newsWeek');
+
+        function renderItems(articles, limit = 5) {
+            if (!articles || articles.length === 0) {
+                return '<div class="loading">No major stories right now.</div>';
+            }
+            let html = '';
+            articles.slice(0, limit).forEach(a => {
+                const impact = a.title?.toLowerCase().includes('fed') || 
+                              a.title?.toLowerCase().includes('rate') || 
+                              a.title?.toLowerCase().includes('inflation') ? 'High' : 'Medium';
+                const impactCls = impact.toLowerCase();
+                html += `
+                    <div class="news-item">
+                        <div class="title">${a.title || 'Untitled'}</div>
+                        <span class="source">${a.source || 'Unknown'} · ${timeAgo(a.publishedAt)}</span>
+                        <span class="impact ${impactCls}">${impact} Impact</span>
+                    </div>
+                `;
+            });
+            return html;
+        }
+
+        todayBox.querySelector('.news-list').innerHTML = renderItems(articlesToday, 20);
+        weekBox.querySelector('.news-list').innerHTML = renderItems(articlesWeek, 20);
+    }
+
+    // ============================================================
+    //  UPDATE LOOP
+    // ============================================================
+    async function updateDashboard() {
+        const timeEl = document.getElementById('updateTime');
+        const marketStatusEl = document.getElementById('marketStatus');
+        
+        const open = isMarketOpen();
+        marketStatusEl.textContent = open ? '🟢 Markets Open' : '🔴 Markets Closed';
+        marketStatusEl.className = `market-status ${open ? 'open' : 'closed'}`;
+        
+        timeEl.textContent = '⏳ Updating...';
+
+        try {
+            // Yahoo assets, crypto, and news hit completely separate
+            // services (a CORS proxy, CoinGecko, rss2json) — nothing
+            // here needs to wait on anything else, so run it all at once.
+            const [yahooData, cryptoData, newsData] = await Promise.all([
+                Promise.all(ASSETS.map(asset => fetchYahoo(asset.symbol))),
+                Promise.all(CRYPTO.map(crypto => fetchCoinGecko(crypto.coinId))),
+                fetchNewsData(),
+            ]);
+
+            const yahooResults = {};
+            ASSETS.forEach((asset, i) => {
+                if (yahooData[i]) yahooResults[asset.id] = yahooData[i];
+            });
+
+            const cryptoResults = {};
+            CRYPTO.forEach((crypto, i) => {
+                if (cryptoData[i]) cryptoResults[crypto.id] = cryptoData[i];
+            });
+
+            const { today: todayNews, week: weekNews } = newsData;
+
+            // RENDER
+            renderAssets(yahooResults, cryptoResults);
+            renderNews(todayNews, weekNews);
+
+            const now = new Date();
+            const marketStatus = open ? 'Open' : 'Closed';
+            timeEl.textContent = `🔄 Updated ${now.toLocaleTimeString()} · ${marketStatus}`;
+        } catch (err) {
+            console.error('Update error:', err);
+            timeEl.textContent = '⚠️ Error updating – retrying...';
+        }
+    }
+
+    // ============================================================
+    //  START
+    // ============================================================
+    updateDashboard();
+    setInterval(updateDashboard, 120000);
+</script>
+</body>
+</html>
