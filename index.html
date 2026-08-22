@@ -369,18 +369,15 @@
 
 <script>
     // ============================================================
-    //  CONFIG
+    //  CONFIG - ALL ASSETS NOW USE YAHOO FINANCE
     // ============================================================
     const ASSETS = [
         { id: 'ES',   label: 'ES Futures',  symbol: 'ES=F' },
         { id: 'MNQ',  label: 'MNQ Futures', symbol: 'MNQ=F' },
         { id: 'NVDA', label: 'NVIDIA',      symbol: 'NVDA' },
         { id: 'SPCX', label: 'SpaceX',      symbol: 'SPCX' },
-    ];
-
-    const CRYPTO = [
-        { id: 'BTC', label: 'Bitcoin',  coinId: 'bitcoin' },
-        { id: 'SOL', label: 'Solana',   coinId: 'solana' },
+        { id: 'BTC',  label: 'Bitcoin',     symbol: 'BTC-USD' },
+        { id: 'SOL',  label: 'Solana',      symbol: 'SOL-USD' },
     ];
 
     // Cache for storing last known prices
@@ -454,9 +451,6 @@
             try {
                 const res = await fetch(proxyUrl);
                 if (res.ok) {
-                    // Yahoo sometimes returns a 200 with an error payload
-                    // instead of a real HTTP error code (e.g. crumb/auth
-                    // failures). Peek at the body so we can tell.
                     const text = await res.text();
                     let parsed;
                     try {
@@ -469,7 +463,6 @@
                         lastErr = new Error(`Yahoo error: ${parsed.chart.error.description || JSON.stringify(parsed.chart.error)}`);
                         continue;
                     }
-                    // Re-wrap so callers can still call res.json()
                     return { ok: true, json: async () => parsed };
                 }
                 const body = await res.text().catch(() => '');
@@ -482,7 +475,7 @@
     }
 
     // ============================================================
-    //  FETCH: Yahoo Finance - FIXED VERSION
+    //  FETCH: Yahoo Finance - ALL ASSETS (Stocks, Futures, Crypto)
     // ============================================================
     async function fetchYahoo(symbol) {
         try {
@@ -620,85 +613,6 @@
     }
 
     // ============================================================
-    //  FETCH: CoinGecko with cache fallback
-    // ============================================================
-    async function fetchCoinGecko(coinId) {
-        try {
-            const priceUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true`;
-            const histUrl = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=365&interval=daily`;
-
-            // Fire both requests at once instead of waiting for price
-            // to finish before even starting the history call.
-            const [priceRes, histRes] = await Promise.all([
-                fetch(priceUrl),
-                fetch(histUrl).catch(e => { console.warn('Historical data fetch failed for', coinId, e.message); return null; }),
-            ]);
-
-            if (!priceRes.ok) {
-                console.warn(`CoinGecko API returned ${priceRes.status} for ${coinId}`);
-                if (priceCache[coinId]) return { ...priceCache[coinId], cached: true };
-                return null;
-            }
-            
-            const data = await priceRes.json();
-            
-            if (!data[coinId]) {
-                console.warn(`No data returned for ${coinId}`);
-                if (priceCache[coinId]) return { ...priceCache[coinId], cached: true };
-                return null;
-            }
-
-            const price = data[coinId].usd;
-            const change24h = data[coinId].usd_24h_change || 0;
-
-            let week = null, month = null, year = null;
-
-            try {
-                if (histRes && histRes.ok) {
-                    const histData = await histRes.json();
-                    const prices = histData.prices || [];
-                    
-                    if (prices.length > 1) {
-                        const todayPrice = prices[prices.length - 1][1];
-                        
-                        const weekIdx = Math.max(0, prices.length - 8);
-                        const weekPrice = prices[weekIdx][1];
-                        week = weekPrice ? ((todayPrice - weekPrice) / weekPrice) * 100 : null;
-                        
-                        const monthIdx = Math.max(0, prices.length - 31);
-                        const monthPrice = prices[monthIdx][1];
-                        month = monthPrice ? ((todayPrice - monthPrice) / monthPrice) * 100 : null;
-                        
-                        const yearIdx = Math.max(0, prices.length - 366);
-                        const yearPrice = prices[yearIdx][1];
-                        year = yearPrice ? ((todayPrice - yearPrice) / yearPrice) * 100 : null;
-                    }
-                }
-            } catch (histErr) {
-                console.warn('Historical data parse failed for', coinId, histErr.message);
-            }
-
-            const resultData = {
-                price: price,
-                change: (change24h / 100) * price,
-                changePercent: change24h,
-                week: week,
-                month: month,
-                year: year,
-                cached: false,
-                timestamp: new Date().toISOString()
-            };
-
-            priceCache[coinId] = resultData;
-            return resultData;
-        } catch (e) {
-            console.warn('CoinGecko error for', coinId, e.message);
-            if (priceCache[coinId]) return { ...priceCache[coinId], cached: true };
-            return null;
-        }
-    }
-
-    // ============================================================
     //  FETCH: News (single pool, classified by real publish time —
     //  this guarantees today/week never share a story, and week is
     //  strictly forbidden from containing anything under 24h old)
@@ -783,7 +697,7 @@
     // ============================================================
     //  RENDER
     // ============================================================
-    function renderAssets(assetData, cryptoData) {
+    function renderAssets(assetData) {
         const container = document.getElementById('assetsContainer');
         let html = '';
 
@@ -818,39 +732,6 @@
                     change: null,
                     error: true,
                     errorMessage: d?.errorMessage || 'No response received',
-                    cached: false,
-                });
-            }
-        });
-
-        CRYPTO.forEach(c => {
-            const d = cryptoData[c.id];
-            if (d) {
-                all.push({
-                    id: c.id,
-                    label: c.label,
-                    ticker: c.coinId,
-                    price: d.price,
-                    changePercent: d.changePercent,
-                    week: d.week,
-                    month: d.month,
-                    year: d.year,
-                    change: d.change,
-                    cached: d.cached || false,
-                    timestamp: d.timestamp,
-                });
-            } else {
-                all.push({
-                    id: c.id,
-                    label: c.label,
-                    ticker: c.coinId,
-                    price: null,
-                    changePercent: null,
-                    week: null,
-                    month: null,
-                    year: null,
-                    change: null,
-                    error: true,
                     cached: false,
                 });
             }
@@ -937,29 +818,21 @@
         timeEl.textContent = '⏳ Updating...';
 
         try {
-            // Yahoo assets, crypto, and news hit completely separate
-            // services (a CORS proxy, CoinGecko, rss2json) — nothing
-            // here needs to wait on anything else, so run it all at once.
-            const [yahooData, cryptoData, newsData] = await Promise.all([
-                Promise.all(ASSETS.map(asset => fetchYahoo(asset.symbol))),
-                Promise.all(CRYPTO.map(crypto => fetchCoinGecko(crypto.coinId))),
-                fetchNewsData(),
-            ]);
+            // Fetch ALL assets (stocks, futures, crypto) from Yahoo Finance
+            const yahooPromises = ASSETS.map(asset => fetchYahoo(asset.symbol));
+            const yahooData = await Promise.all(yahooPromises);
 
-            const yahooResults = {};
+            const assetResults = {};
             ASSETS.forEach((asset, i) => {
-                if (yahooData[i]) yahooResults[asset.id] = yahooData[i];
+                if (yahooData[i]) assetResults[asset.id] = yahooData[i];
             });
 
-            const cryptoResults = {};
-            CRYPTO.forEach((crypto, i) => {
-                if (cryptoData[i]) cryptoResults[crypto.id] = cryptoData[i];
-            });
-
+            // Fetch news
+            const newsData = await fetchNewsData();
             const { today: todayNews, week: weekNews } = newsData;
 
             // RENDER
-            renderAssets(yahooResults, cryptoResults);
+            renderAssets(assetResults);
             renderNews(todayNews, weekNews);
 
             const now = new Date();
