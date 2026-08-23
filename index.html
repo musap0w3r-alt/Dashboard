@@ -315,6 +315,12 @@
             border: 1px solid #ff0040;
         }
 
+        .impact.medium {
+            background: #1a1a00;
+            color: #888888;
+            border: 1px solid #444444;
+        }
+
         .loading {
             color: #444444;
             font-size: 13px;
@@ -379,7 +385,7 @@
                 <div class="news-list"><div class="loading">Loading top stories...</div></div>
             </div>
             <div class="news-box" id="newsWeek">
-                <h3>📆 THIS WEEK</h3>
+                <h3>📆 THIS WEEK • HIGH IMPACT</h3>
                 <div class="news-list"><div class="loading">Loading weekly stories...</div></div>
             </div>
         </div>
@@ -618,7 +624,7 @@
     }
 
     // ============================================================
-    //  FETCH: News - High Impact only
+    //  FETCH: News - DAILY = ALL, WEEKLY = HIGH IMPACT ONLY
     // ============================================================
     let newsCache = null;
 
@@ -675,10 +681,12 @@
         return combined;
     }
 
-    function fallbackHighImpactNews() {
+    function fallbackNews() {
         const now = Date.now();
         return [
-            { title: 'Federal Reserve signals rate cut ahead', source: 'Market Update', publishedAt: new Date(now - 2 * 60 * 60 * 1000).toISOString() },
+            { title: 'Markets await Federal Reserve signals', source: 'Market Update', publishedAt: new Date(now - 2 * 60 * 60 * 1000).toISOString() },
+            { title: 'Tech sector leads gains today', source: 'Market Update', publishedAt: new Date(now - 6 * 60 * 60 * 1000).toISOString() },
+            { title: 'Oil prices steady amid geopolitical tensions', source: 'Market Update', publishedAt: new Date(now - 3 * 24 * 60 * 60 * 1000).toISOString() },
             { title: 'Inflation data beats expectations', source: 'Market Update', publishedAt: new Date(now - 5 * 60 * 60 * 1000).toISOString() },
             { title: 'Jobs report shows strong growth', source: 'Market Update', publishedAt: new Date(now - 2 * 24 * 60 * 60 * 1000).toISOString() },
             { title: 'Central banks coordinate policy action', source: 'Market Update', publishedAt: new Date(now - 3 * 24 * 60 * 60 * 1000).toISOString() },
@@ -687,20 +695,24 @@
 
     function classifyNews(articles) {
         const now = Date.now();
-        const highImpactArticles = articles.filter(a => isHighImpact(a.title));
-        const sorted = [...highImpactArticles].sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+        const sorted = [...articles].sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
 
+        // TODAY: ALL news from the last 24 hours (no filter)
         const today = sorted.filter(a => {
             const age = now - new Date(a.publishedAt).getTime();
             return age >= 0 && age < 24 * 60 * 60 * 1000;
         });
 
+        // THIS WEEK: Monday to now, but EXCLUDING today, and HIGH IMPACT ONLY
         const monday = getMonday(now);
         const mondayMs = monday.getTime();
         
         const week = sorted.filter(a => {
             const pubMs = new Date(a.publishedAt).getTime();
-            return pubMs >= mondayMs && pubMs < (now - 24 * 60 * 60 * 1000);
+            // Must be ON or AFTER Monday, BEFORE today, AND high impact
+            return pubMs >= mondayMs && 
+                   pubMs < (now - 24 * 60 * 60 * 1000) && 
+                   isHighImpact(a.title);
         });
 
         return { today, week };
@@ -713,12 +725,12 @@
                 newsCache = articles;
                 return classifyNews(articles);
             }
-            const fallback = fallbackHighImpactNews();
+            const fallback = fallbackNews();
             newsCache = fallback;
             return classifyNews(fallback);
         } catch (e) {
             console.warn('News fetch error:', e);
-            const fallback = fallbackHighImpactNews();
+            const fallback = fallbackNews();
             newsCache = fallback;
             return classifyNews(fallback);
         }
@@ -808,9 +820,29 @@
         const todayBox = document.getElementById('newsToday');
         const weekBox = document.getElementById('newsWeek');
 
-        function renderItems(articles, limit = 5) {
+        function renderDailyItems(articles, limit = 5) {
             if (!articles || articles.length === 0) {
-                return '<div class="loading">No high-impact stories.</div>';
+                return '<div class="loading">No stories today.</div>';
+            }
+            let html = '';
+            articles.slice(0, limit).forEach(a => {
+                const isHigh = isHighImpact(a.title);
+                const impactLabel = isHigh ? 'HIGH IMPACT' : 'MEDIUM IMPACT';
+                const impactClass = isHigh ? 'high' : 'medium';
+                html += `
+                    <div class="news-item">
+                        <div class="title">${a.title || 'Untitled'}</div>
+                        <span class="source">${a.source || 'Unknown'} · ${timeAgo(a.publishedAt)}</span>
+                        <span class="impact ${impactClass}">${impactLabel}</span>
+                    </div>
+                `;
+            });
+            return html;
+        }
+
+        function renderWeeklyItems(articles, limit = 5) {
+            if (!articles || articles.length === 0) {
+                return '<div class="loading">No high-impact stories this week.</div>';
             }
             let html = '';
             articles.slice(0, limit).forEach(a => {
@@ -825,8 +857,8 @@
             return html;
         }
 
-        todayBox.querySelector('.news-list').innerHTML = renderItems(articlesToday, 20);
-        weekBox.querySelector('.news-list').innerHTML = renderItems(articlesWeek, 20);
+        todayBox.querySelector('.news-list').innerHTML = renderDailyItems(articlesToday, 20);
+        weekBox.querySelector('.news-list').innerHTML = renderWeeklyItems(articlesWeek, 20);
     }
 
     // ============================================================
