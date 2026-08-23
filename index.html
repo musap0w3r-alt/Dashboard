@@ -17,8 +17,8 @@
 
         body {
             font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
-            background: #0b0e11;
-            color: #eaecef;
+            background: #000000;
+            color: #ffffff;
             padding: 20px;
             height: 100vh;
             overflow: hidden;
@@ -31,14 +31,13 @@
             max-width: 1400px;
             width: 100%;
             height: 100%;
-            background: #13161a;
-            border-radius: 32px;
+            background: #000000;
             padding: 30px 35px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-            border: 1px solid #2a2f36;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            border: 1px solid #222222;
+            border-radius: 4px;
         }
 
         .header {
@@ -49,44 +48,51 @@
             flex-wrap: wrap;
             gap: 10px;
             flex-shrink: 0;
+            border-bottom: 1px solid #222222;
+            padding-bottom: 18px;
         }
 
         .header h1 {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #f0b90b, #f5d442);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+            color: #ffffff;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .header .update-time {
-            font-size: 14px;
-            color: #848e9c;
-            background: #1e2329;
-            padding: 8px 16px;
-            border-radius: 30px;
-            border: 1px solid #2b3139;
+            font-size: 13px;
+            color: #888888;
+            background: #111111;
+            padding: 6px 14px;
+            border: 1px solid #222222;
+            border-radius: 2px;
+            letter-spacing: 0.3px;
         }
 
         .market-status {
             font-size: 12px;
-            color: #848e9c;
-            background: #1e2329;
-            padding: 4px 12px;
-            border-radius: 20px;
-            border: 1px solid #2b3139;
-            margin-left: 10px;
+            color: #888888;
+            background: #111111;
+            padding: 6px 14px;
+            border: 1px solid #222222;
+            border-radius: 2px;
+            letter-spacing: 0.3px;
         }
 
         .market-status.open {
-            color: #0ecb81;
-            border-color: #0ecb81;
+            color: #00ff41;
+            border-color: #00ff41;
         }
 
         .market-status.closed {
-            color: #f0b90b;
-            border-color: #f0b90b;
+            color: #888888;
+            border-color: #222222;
         }
 
         .grid {
@@ -102,32 +108,30 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: repeat(3, 1fr);
-            gap: 14px;
+            gap: 12px;
             min-height: 0;
             height: 100%;
         }
 
         .asset-card {
-            background: #1a1e24;
-            border-radius: 18px;
-            padding: 16px 18px;
-            border: 1px solid #272d35;
-            transition: 0.2s;
+            background: #0a0a0a;
+            border: 1px solid #222222;
+            border-radius: 2px;
+            padding: 18px 20px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             overflow: hidden;
             min-height: 0;
+            transition: border-color 0.3s ease;
         }
 
         .asset-card.up {
-            background: rgba(14, 203, 129, 0.12);
-            border-color: rgba(14, 203, 129, 0.4);
+            border-color: #00ff41;
         }
 
         .asset-card.down {
-            background: rgba(246, 70, 93, 0.12);
-            border-color: rgba(246, 70, 93, 0.4);
+            border-color: #ff0040;
         }
 
         .asset-row {
@@ -138,90 +142,110 @@
         }
 
         .asset-name {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            color: #ffffff;
+            letter-spacing: 0.3px;
         }
 
         .asset-name .ticker {
-            color: #848e9c;
+            color: #666666;
             font-weight: 400;
             font-size: 12px;
+            margin-left: 8px;
         }
 
         .asset-price {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 600;
-            color: #fff;
+            color: #ffffff;
+            letter-spacing: 0.3px;
         }
 
         .change-badge {
             font-size: 14px;
             font-weight: 600;
-            padding: 3px 10px;
-            border-radius: 40px;
-            background: #1e2329;
+            padding: 2px 12px;
+            border-radius: 2px;
+            margin-left: 10px;
         }
 
         .change-badge.green {
-            color: #0ecb81;
-            background: #0b1e18;
+            color: #00ff41;
+            background: #001a08;
+            border: 1px solid #00ff41;
         }
+
         .change-badge.red {
-            color: #f6465d;
-            background: #1f1316;
+            color: #ff0040;
+            background: #1a0006;
+            border: 1px solid #ff0040;
         }
 
         .timeframes {
             display: flex;
-            gap: 10px;
-            margin-top: 8px;
+            gap: 14px;
+            margin-top: 10px;
             flex-wrap: wrap;
             font-size: 12px;
-            color: #848e9c;
+            color: #666666;
+            letter-spacing: 0.2px;
+            border-top: 1px solid #111111;
+            padding-top: 10px;
         }
 
         .timeframes span {
             display: flex;
-            gap: 6px;
+            gap: 5px;
             align-items: center;
         }
 
         .timeframes .label {
-            color: #5e6673;
+            color: #444444;
             font-weight: 400;
         }
 
         .timeframes .val-green {
-            color: #0ecb81;
+            color: #00ff41;
             font-weight: 500;
         }
+
         .timeframes .val-red {
-            color: #f6465d;
+            color: #ff0040;
             font-weight: 500;
         }
 
         .last-updated {
-            font-size: 11px;
-            color: #5e6673;
+            font-size: 10px;
+            color: #444444;
             margin-top: 6px;
+            letter-spacing: 0.2px;
+        }
+
+        .cached-badge {
+            font-size: 9px;
+            color: #666666;
+            background: #111111;
+            padding: 2px 8px;
+            border: 1px solid #222222;
+            border-radius: 2px;
+            margin-left: 8px;
+            letter-spacing: 0.5px;
         }
 
         .news-section {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
             min-height: 0;
             height: 100%;
         }
 
         .news-box {
-            background: #1a1e24;
-            border-radius: 18px;
+            background: #0a0a0a;
+            border: 1px solid #222222;
+            border-radius: 2px;
             padding: 18px 20px;
-            border: 1px solid #272d35;
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -231,13 +255,14 @@
 
         .news-box h3 {
             flex-shrink: 0;
-            font-size: 16px;
+            font-size: 13px;
             font-weight: 600;
-            color: #f0b90b;
+            color: #888888;
+            letter-spacing: 0.5px;
             margin-bottom: 12px;
-            letter-spacing: 0.3px;
-            border-bottom: 1px solid #272d35;
             padding-bottom: 10px;
+            border-bottom: 1px solid #111111;
+            text-transform: uppercase;
         }
 
         .news-list {
@@ -249,7 +274,7 @@
 
         .news-item {
             padding: 10px 0;
-            border-bottom: 1px solid #1e2329;
+            border-bottom: 1px solid #111111;
         }
 
         .news-item:last-child {
@@ -257,54 +282,44 @@
         }
 
         .news-item .title {
-            font-size: 14px;
-            font-weight: 500;
-            line-height: 1.4;
-            color: #eaecef;
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #ffffff;
             cursor: default;
+            letter-spacing: 0.2px;
         }
 
         .news-item .source {
-            font-size: 11px;
-            color: #5e6673;
+            font-size: 10px;
+            color: #444444;
             margin-top: 4px;
             display: block;
+            letter-spacing: 0.2px;
         }
 
         .news-item .impact {
             display: inline-block;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 600;
             text-transform: uppercase;
-            background: #2a1f1f;
-            color: #f6465d;
             padding: 2px 10px;
-            border-radius: 20px;
+            border-radius: 2px;
             margin-top: 5px;
+            letter-spacing: 0.5px;
         }
 
         .impact.high {
-            background: #2a1f1f;
-            color: #f6465d;
-        }
-        .impact.medium {
-            background: #2a281a;
-            color: #f0b90b;
+            background: #1a0006;
+            color: #ff0040;
+            border: 1px solid #ff0040;
         }
 
         .loading {
-            color: #5e6673;
+            color: #444444;
             font-size: 13px;
             padding: 6px 0;
-        }
-
-        .cached-badge {
-            font-size: 10px;
-            color: #5e6673;
-            background: #1e2329;
-            padding: 2px 8px;
-            border-radius: 12px;
-            margin-left: 8px;
+            letter-spacing: 0.2px;
         }
 
         @media (max-width: 1000px) {
@@ -324,11 +339,15 @@
                 gap: 8px;
             }
             .timeframes {
-                font-size: 12px;
-                gap: 10px;
+                font-size: 11px;
+                gap: 8px;
             }
             .header h1 {
-                font-size: 22px;
+                font-size: 20px;
+            }
+            .assets {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(6, 1fr);
             }
         }
 
@@ -342,11 +361,11 @@
 
 <div class="dashboard" id="app">
     <div class="header">
-        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <h1>📊  DASHBOARD</h1>
-            <span class="market-status" id="marketStatus">⏳ Checking...</span>
+        <h1>MARKET DASHBOARD</h1>
+        <div class="header-right">
+            <span class="market-status" id="marketStatus">⏳ CHECKING</span>
+            <div class="update-time" id="updateTime">⏳ LOADING</div>
         </div>
-        <div class="update-time" id="updateTime">⏳ Loading...</div>
     </div>
 
     <div class="grid">
@@ -356,12 +375,12 @@
 
         <div class="news-section">
             <div class="news-box" id="newsToday">
-                <h3>📰  TODAY'S MARKET-MOVING NEWS</h3>
-                <div class="news-list"><div class="loading">Fetching top stories...</div></div>
+                <h3>📰 TODAY</h3>
+                <div class="news-list"><div class="loading">Loading top stories...</div></div>
             </div>
             <div class="news-box" id="newsWeek">
-                <h3>📆  THIS WEEK'S BIG STORIES</h3>
-                <div class="news-list"><div class="loading">Fetching weekly stories...</div></div>
+                <h3>📆 THIS WEEK</h3>
+                <div class="news-list"><div class="loading">Loading weekly stories...</div></div>
             </div>
         </div>
     </div>
@@ -369,7 +388,7 @@
 
 <script>
     // ============================================================
-    //  CONFIG - ALL ASSETS NOW USE YAHOO FINANCE
+    //  CONFIG - ALL ASSETS USE YAHOO FINANCE
     // ============================================================
     const ASSETS = [
         { id: 'ES',   label: 'ES Futures',  symbol: 'ES=F' },
@@ -380,7 +399,6 @@
         { id: 'SOL',  label: 'Solana',      symbol: 'SOL-USD' },
     ];
 
-    // Cache for storing last known prices
     const priceCache = {};
 
     // ============================================================
@@ -415,18 +433,12 @@
         return Math.floor(hrs / 24) + 'd ago';
     }
 
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
     function isMarketOpen() {
         const now = new Date();
         const day = now.getDay();
         const hour = now.getHours();
         const minute = now.getMinutes();
         const time = hour + minute / 60;
-        
-        // Monday-Friday, 9:30 AM - 4:00 PM ET
         if (day >= 1 && day <= 5) {
             if (time >= 9.5 && time < 16) {
                 return true;
@@ -436,8 +448,7 @@
     }
 
     // ============================================================
-    //  FETCH: CORS proxy helper (Yahoo Finance has no CORS headers,
-    //  so a direct browser fetch to it always fails silently)
+    //  FETCH: CORS proxy helper
     // ============================================================
     const CORS_PROXIES = [
         (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
@@ -475,12 +486,11 @@
     }
 
     // ============================================================
-    //  FETCH: Yahoo Finance - ALL ASSETS (Stocks, Futures, Crypto)
+    //  FETCH: Yahoo Finance
     // ============================================================
     async function fetchYahoo(symbol) {
         try {
-            // Use range=5d to ensure we get data even on weekends
-            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=5d`;
+            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1y`;
             const res = await fetchViaProxy(url);
             
             if (!res.ok) {
@@ -492,7 +502,7 @@
             
             if (!data.chart || !data.chart.result || data.chart.result.length === 0) {
                 console.warn(`No data returned for ${symbol}`);
-                return priceCache[symbol] || { errorMessage: `No chart result for "${symbol}"` };
+                return priceCache[symbol] || null;
             }
 
             const result = data.chart.result[0];
@@ -501,16 +511,13 @@
             const closes = quote?.close || [];
             const timestamps = result.timestamp || [];
             
-            // Get current price - try multiple sources
             let price = null;
             let prevClose = null;
             
-            // 1. Try regularMarketPrice
             if (meta?.regularMarketPrice) {
                 price = meta.regularMarketPrice;
             }
             
-            // 2. If no regularMarketPrice, use the last close from historical data
             if (!price && closes.length > 0) {
                 for (let i = closes.length - 1; i >= 0; i--) {
                     if (closes[i] !== null && closes[i] !== undefined) {
@@ -520,17 +527,15 @@
                 }
             }
             
-            // 3. Use cache as last resort
             if (!price && priceCache[symbol]) {
                 return { ...priceCache[symbol], cached: true };
             }
             
             if (!price) {
                 console.warn(`No price found for ${symbol}`);
-                return priceCache[symbol] || { errorMessage: `Response had no usable price field for "${symbol}"` };
+                return priceCache[symbol] || null;
             }
 
-            // Get previous close for change calculation
             if (meta?.previousClose) {
                 prevClose = meta.previousClose;
             } else if (closes.length > 1) {
@@ -543,13 +548,12 @@
             }
             
             if (!prevClose) {
-                prevClose = price * 0.99; // Fallback
+                prevClose = price * 0.99;
             }
 
             const change = price - prevClose;
             const changePercent = (change / prevClose) * 100;
 
-            // Calculate week/month/year from historical closes
             let week = null, month = null, year = null;
             
             if (closes.length > 0 && timestamps.length > 0) {
@@ -567,10 +571,12 @@
                     
                     for (let i = 0; i < timestamps.length; i++) {
                         const d = new Date(timestamps[i] * 1000);
-                        const diff = Math.abs(d - target);
-                        if (diff < closestDiff && closes[i] !== null && closes[i] !== undefined) {
-                            closestDiff = diff;
-                            closestIdx = i;
+                        if (d <= target) {
+                            const diff = target - d;
+                            if (diff < closestDiff && closes[i] !== null && closes[i] !== undefined) {
+                                closestDiff = diff;
+                                closestIdx = i;
+                            }
                         }
                     }
                     
@@ -600,7 +606,6 @@
                 timestamp: new Date().toISOString()
             };
 
-            // Update cache
             priceCache[symbol] = resultData;
             return resultData;
         } catch (e) {
@@ -608,19 +613,37 @@
             if (priceCache[symbol]) {
                 return { ...priceCache[symbol], cached: true };
             }
-            return { errorMessage: e.message };
+            return null;
         }
     }
 
     // ============================================================
-    //  FETCH: News (single pool, classified by real publish time —
-    //  this guarantees today/week never share a story, and week is
-    //  strictly forbidden from containing anything under 24h old)
+    //  FETCH: News - High Impact only
     // ============================================================
-    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-    const ONE_WEEK_MS = 7 * ONE_DAY_MS;
+    let newsCache = null;
 
-    let newsCache = null; // last successful combined article pool
+    const HIGH_IMPACT_KEYWORDS = [
+        'fed', 'federal reserve', 'rate', 'rates', 'interest rate',
+        'inflation', 'cpi', 'ppi', 'jobs report', 'nonfarm payroll',
+        'gdp', 'earnings', 'recession', 'crash', 'crisis',
+        'bankruptcy', 'stimulus', 'jobs', 'unemployment',
+        'central bank', 'ecb', 'boj', 'bank of england'
+    ];
+
+    function isHighImpact(title) {
+        if (!title) return false;
+        const lower = title.toLowerCase();
+        return HIGH_IMPACT_KEYWORDS.some(keyword => lower.includes(keyword));
+    }
+
+    function getMonday(date) {
+        const d = new Date(date);
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        d.setDate(diff);
+        d.setHours(0, 0, 0, 0);
+        return d;
+    }
 
     async function fetchAllNewsArticles() {
         const feeds = [
@@ -652,29 +675,32 @@
         return combined;
     }
 
-    function fallbackNewsArticles() {
+    function fallbackHighImpactNews() {
         const now = Date.now();
         return [
-            { title: 'Markets await Federal Reserve signals', source: 'Market Update', publishedAt: new Date(now - 2 * 60 * 60 * 1000).toISOString() },
-            { title: 'Tech sector leads gains today', source: 'Market Update', publishedAt: new Date(now - 6 * 60 * 60 * 1000).toISOString() },
-            { title: 'Oil prices steady amid geopolitical tensions', source: 'Market Update', publishedAt: new Date(now - 3 * ONE_DAY_MS).toISOString() },
-            { title: 'Central banks weigh rate path for next quarter', source: 'Market Update', publishedAt: new Date(now - 5 * ONE_DAY_MS).toISOString() },
+            { title: 'Federal Reserve signals rate cut ahead', source: 'Market Update', publishedAt: new Date(now - 2 * 60 * 60 * 1000).toISOString() },
+            { title: 'Inflation data beats expectations', source: 'Market Update', publishedAt: new Date(now - 5 * 60 * 60 * 1000).toISOString() },
+            { title: 'Jobs report shows strong growth', source: 'Market Update', publishedAt: new Date(now - 2 * 24 * 60 * 60 * 1000).toISOString() },
+            { title: 'Central banks coordinate policy action', source: 'Market Update', publishedAt: new Date(now - 3 * 24 * 60 * 60 * 1000).toISOString() },
         ];
     }
 
     function classifyNews(articles) {
         const now = Date.now();
-        const sorted = [...articles].sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+        const highImpactArticles = articles.filter(a => isHighImpact(a.title));
+        const sorted = [...highImpactArticles].sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
 
         const today = sorted.filter(a => {
             const age = now - new Date(a.publishedAt).getTime();
-            return age >= 0 && age < ONE_DAY_MS;
+            return age >= 0 && age < 24 * 60 * 60 * 1000;
         });
 
-        // Strictly excludes anything under 24h old — no overlap with "today" is possible.
+        const monday = getMonday(now);
+        const mondayMs = monday.getTime();
+        
         const week = sorted.filter(a => {
-            const age = now - new Date(a.publishedAt).getTime();
-            return age >= ONE_DAY_MS && age < ONE_WEEK_MS;
+            const pubMs = new Date(a.publishedAt).getTime();
+            return pubMs >= mondayMs && pubMs < (now - 24 * 60 * 60 * 1000);
         });
 
         return { today, week };
@@ -687,10 +713,14 @@
                 newsCache = articles;
                 return classifyNews(articles);
             }
-            return classifyNews(newsCache || fallbackNewsArticles());
+            const fallback = fallbackHighImpactNews();
+            newsCache = fallback;
+            return classifyNews(fallback);
         } catch (e) {
             console.warn('News fetch error:', e);
-            return classifyNews(newsCache || fallbackNewsArticles());
+            const fallback = fallbackHighImpactNews();
+            newsCache = fallback;
+            return classifyNews(fallback);
         }
     }
 
@@ -731,7 +761,6 @@
                     year: null,
                     change: null,
                     error: true,
-                    errorMessage: d?.errorMessage || 'No response received',
                     cached: false,
                 });
             }
@@ -742,11 +771,11 @@
             const change = item.changePercent;
             const cls = changeClass(change);
             const changeStr = hasError ? '—' : formatChange(change);
-            const priceStr = hasError ? '⚠️ Unavailable' : formatUSD(item.price);
+            const priceStr = hasError ? '—' : formatUSD(item.price);
             const cardDirectionClass = hasError ? '' : (change >= 0 ? 'up' : 'down');
             
-            const cachedBadge = item.cached ? '<span class="cached-badge">📦 Cached</span>' : '';
-            const timestampStr = item.timestamp ? `Last updated: ${new Date(item.timestamp).toLocaleTimeString()}` : '';
+            const cachedBadge = item.cached ? '<span class="cached-badge">CACHED</span>' : '';
+            const timestampStr = item.timestamp ? `Updated: ${new Date(item.timestamp).toLocaleTimeString()}` : '';
 
             html += `
                 <div class="asset-card ${cardDirectionClass}">
@@ -756,16 +785,16 @@
                             <span class="ticker">${item.ticker}</span>
                             ${cachedBadge}
                         </div>
-                        <div>
+                        <div style="display: flex; align-items: center;">
                             <span class="asset-price">${priceStr}</span>
                             <span class="change-badge ${hasError ? '' : cls}">${changeStr}</span>
                         </div>
                     </div>
                     <div class="timeframes">
-                        <span><span class="label">Day</span> <span class="val-${hasError ? '' : cls}">${hasError ? '—' : formatChange(change)}</span></span>
-                        <span><span class="label">Week</span> <span class="val-${changeClass(item.week)}">${hasError ? '—' : formatChange(item.week)}</span></span>
-                        <span><span class="label">Month</span> <span class="val-${changeClass(item.month)}">${hasError ? '—' : formatChange(item.month)}</span></span>
-                        <span><span class="label">Year</span> <span class="val-${changeClass(item.year)}">${hasError ? '—' : formatChange(item.year)}</span></span>
+                        <span><span class="label">DAY</span> <span class="val-${hasError ? '' : cls}">${hasError ? '—' : formatChange(change)}</span></span>
+                        <span><span class="label">WEEK</span> <span class="val-${changeClass(item.week)}">${hasError ? '—' : formatChange(item.week)}</span></span>
+                        <span><span class="label">MONTH</span> <span class="val-${changeClass(item.month)}">${hasError ? '—' : formatChange(item.month)}</span></span>
+                        <span><span class="label">YEAR</span> <span class="val-${changeClass(item.year)}">${hasError ? '—' : formatChange(item.year)}</span></span>
                     </div>
                     ${timestampStr ? `<div class="last-updated">${timestampStr}</div>` : ''}
                 </div>
@@ -781,19 +810,15 @@
 
         function renderItems(articles, limit = 5) {
             if (!articles || articles.length === 0) {
-                return '<div class="loading">No major stories right now.</div>';
+                return '<div class="loading">No high-impact stories.</div>';
             }
             let html = '';
             articles.slice(0, limit).forEach(a => {
-                const impact = a.title?.toLowerCase().includes('fed') || 
-                              a.title?.toLowerCase().includes('rate') || 
-                              a.title?.toLowerCase().includes('inflation') ? 'High' : 'Medium';
-                const impactCls = impact.toLowerCase();
                 html += `
                     <div class="news-item">
                         <div class="title">${a.title || 'Untitled'}</div>
                         <span class="source">${a.source || 'Unknown'} · ${timeAgo(a.publishedAt)}</span>
-                        <span class="impact ${impactCls}">${impact} Impact</span>
+                        <span class="impact high">HIGH IMPACT</span>
                     </div>
                 `;
             });
@@ -812,13 +837,12 @@
         const marketStatusEl = document.getElementById('marketStatus');
         
         const open = isMarketOpen();
-        marketStatusEl.textContent = open ? '🟢 Markets Open' : '🔴 Markets Closed';
+        marketStatusEl.textContent = open ? '● OPEN' : '● CLOSED';
         marketStatusEl.className = `market-status ${open ? 'open' : 'closed'}`;
         
-        timeEl.textContent = '⏳ Updating...';
+        timeEl.textContent = '⏳ UPDATING...';
 
         try {
-            // Fetch ALL assets (stocks, futures, crypto) from Yahoo Finance
             const yahooPromises = ASSETS.map(asset => fetchYahoo(asset.symbol));
             const yahooData = await Promise.all(yahooPromises);
 
@@ -827,20 +851,17 @@
                 if (yahooData[i]) assetResults[asset.id] = yahooData[i];
             });
 
-            // Fetch news
             const newsData = await fetchNewsData();
             const { today: todayNews, week: weekNews } = newsData;
 
-            // RENDER
             renderAssets(assetResults);
             renderNews(todayNews, weekNews);
 
             const now = new Date();
-            const marketStatus = open ? 'Open' : 'Closed';
-            timeEl.textContent = `🔄 Updated ${now.toLocaleTimeString()} · ${marketStatus}`;
+            timeEl.textContent = `UPDATED ${now.toLocaleTimeString()}`;
         } catch (err) {
             console.error('Update error:', err);
-            timeEl.textContent = '⚠️ Error updating – retrying...';
+            timeEl.textContent = '⚠️ ERROR';
         }
     }
 
