@@ -1,0 +1,38 @@
+name: Update prices
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-prices
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch prices
+        run: |
+          mkdir publish
+          python3 scripts/fetch_prices.py publish/prices.json
+
+      # Lives on its own branch, replaced each run, so main's history and
+      # GitHub Pages aren't touched every five minutes
+      - name: Publish to the data branch
+        working-directory: publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git init -b data
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add prices.json
+          git commit -m 'Update prices'
+          git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" data

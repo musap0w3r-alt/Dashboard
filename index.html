@@ -4,7 +4,85 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Market Dashboard</title>
+    <script>
+        // Set before first paint so night mode doesn't flash the day theme
+        try {
+            if (localStorage.getItem('theme') === 'night') document.documentElement.dataset.theme = 'night';
+        } catch {}
+    </script>
     <style>
+        :root {
+            --text: rgba(38, 26, 16, 0.96);
+            --text-secondary: rgba(46, 31, 20, 0.88);
+            --text-tertiary: rgba(52, 36, 24, 0.8);
+            --hairline: rgba(70, 48, 30, 0.16);
+            --green: #066b2a;
+            --red: #ae1c12;
+            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --card-ease: cubic-bezier(0.32, 0.72, 0, 1);
+            --header-panel-height: 46px;
+            --header-panel-radius: 23px;
+            --page-bg: linear-gradient(#a9c2d8 0%, #f0dcc3 52%, #dcc9b0 100%);
+            --logo-sky-top: #6f9fd0;
+            --logo-sky-bottom: #f6d3ab;
+            --logo-far-dune: #d9b98f;
+            --logo-near-dune: #f0dcbf;
+            --logo-line: #ffffff;
+            --glass-gloss: linear-gradient(145deg, rgba(255, 255, 255, 0.56), rgba(255, 255, 255, 0.24) 45%, rgba(255, 255, 255, 0.36));
+            --glass-fill: rgba(250, 243, 232, 0.52);
+            --glass-shadow:
+                0 18px 40px -20px rgba(92, 64, 36, 0.45),
+                inset 0 1px 1px rgba(255, 255, 255, 0.85),
+                inset 0 -1px 1px rgba(255, 255, 255, 0.3),
+                inset 0 0 22px rgba(255, 255, 255, 0.2);
+            --glass-solid: #f5ecdf;
+            --rim-bright: rgba(255, 255, 255, 1);
+            --rim-mid: rgba(255, 255, 255, 0.5);
+            --rim-soft: rgba(255, 255, 255, 0.42);
+            --sheen: rgba(255, 255, 255, 0.3);
+            --pill: rgba(255, 255, 255, 0.4);
+            --pill-edge: rgba(255, 255, 255, 0.6);
+            --thumb: rgba(255, 255, 255, 0.95);
+            --up-tint: rgba(52, 199, 89, 0.3);
+            --down-tint: rgba(255, 69, 58, 0.26);
+            --up-pill: rgba(52, 199, 89, 0.24);
+            --down-pill: rgba(255, 69, 58, 0.18);
+        }
+
+        :root[data-theme="night"] {
+            --text: rgba(255, 255, 255, 0.97);
+            --text-secondary: rgba(235, 235, 245, 0.78);
+            --text-tertiary: rgba(235, 235, 245, 0.62);
+            --hairline: rgba(255, 255, 255, 0.13);
+            --green: #30d158;
+            --red: #ff6961;
+            --page-bg: linear-gradient(#0b1c30 0%, #6b4c58 52%, #3a3a40 100%);
+            --logo-sky-top: #0c2036;
+            --logo-sky-bottom: #7d5763;
+            --logo-far-dune: #3a3a42;
+            --logo-near-dune: #63636c;
+            --logo-line: #ffffff;
+            --glass-gloss: linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.03) 42%, rgba(255, 255, 255, 0.07));
+            --glass-fill: rgba(16, 18, 26, 0.5);
+            --glass-shadow:
+                0 20px 44px -18px rgba(0, 0, 0, 0.6),
+                inset 0 1px 1px rgba(255, 255, 255, 0.26),
+                inset 0 -1px 1px rgba(255, 255, 255, 0.07),
+                inset 0 0 22px rgba(255, 255, 255, 0.04);
+            --glass-solid: #1b1d27;
+            --rim-bright: rgba(255, 255, 255, 0.85);
+            --rim-mid: rgba(255, 255, 255, 0.16);
+            --rim-soft: rgba(255, 255, 255, 0.12);
+            --sheen: rgba(255, 255, 255, 0.09);
+            --pill: rgba(255, 255, 255, 0.09);
+            --pill-edge: rgba(255, 255, 255, 0.14);
+            --thumb: rgba(255, 255, 255, 0.2);
+            --up-tint: rgba(48, 209, 88, 0.16);
+            --down-tint: rgba(255, 69, 58, 0.18);
+            --up-pill: rgba(48, 209, 88, 0.16);
+            --down-pill: rgba(255, 69, 58, 0.18);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -16,236 +94,529 @@
         }
 
         body {
-            font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
-            background: #000000;
-            color: #ffffff;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            background: var(--page-bg);
+            color: var(--text);
+            transition: color 0.6s ease;
+            padding: 16px;
+            padding-top: max(16px, env(safe-area-inset-top));
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
             height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .dashboard {
-            max-width: 1400px;
+        #desertBg {
+            position: fixed;
+            inset: 0;
             width: 100%;
             height: 100%;
-            background: #000000;
-            padding: 30px 35px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border: 1px solid #222222;
-            border-radius: 4px;
+            z-index: -1;
         }
 
+        .dashboard {
+            max-width: 1600px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            overflow: hidden;
+        }
+
+        /* ---------- Liquid glass material ---------- */
+        .glass {
+            position: relative;
+            isolation: isolate;
+            border-radius: 26px;
+            background:
+                var(--glass-tint, linear-gradient(transparent, transparent)),
+                var(--glass-gloss),
+                var(--glass-fill);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            backdrop-filter: blur(20px) saturate(150%);
+            box-shadow: var(--glass-shadow);
+        }
+
+        /* Rim of light that follows the pointer */
+        .glass::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            padding: 1px;
+            border-radius: inherit;
+            background: radial-gradient(
+                260px circle at var(--mx, 25%) var(--my, 0%),
+                var(--rim-bright),
+                var(--rim-mid) 65%,
+                var(--rim-soft)
+            );
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        /* Soft sheen across the surface */
+        .glass::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            border-radius: inherit;
+            background: radial-gradient(
+                340px circle at var(--mx, 25%) var(--my, 0%),
+                var(--sheen),
+                transparent 72%
+            );
+            pointer-events: none;
+        }
+
+        /* ---------- Header ---------- */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 28px;
             flex-wrap: wrap;
             gap: 10px;
             flex-shrink: 0;
-            border-bottom: 1px solid #222222;
-            padding-bottom: 18px;
+            padding: 10px 14px;
         }
 
         .header h1 {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: #ffffff;
+            display: flex;
+        }
+
+        .logo {
+            width: 46px;
+            height: 46px;
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.22));
+        }
+
+        .logo-sun,
+        .logo-moon {
+            transition: opacity 0.8s ease;
+        }
+
+        .logo-moon {
+            opacity: 0;
+        }
+
+        :root[data-theme="night"] .logo-sun {
+            opacity: 0;
+        }
+
+        :root[data-theme="night"] .logo-moon {
+            opacity: 1;
         }
 
         .header-right {
             display: flex;
             align-items: center;
-            gap: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
-        .header .update-time {
-            font-size: 13px;
-            color: #888888;
-            background: #111111;
-            padding: 6px 14px;
-            border: 1px solid #222222;
-            border-radius: 2px;
-            letter-spacing: 0.3px;
+        /* Everything in the top bar shares this shape */
+        .header-panel {
+            height: var(--header-panel-height);
+            border-radius: var(--header-panel-radius);
+            background: var(--pill);
+            box-shadow: inset 0 0 0 0.5px var(--pill-edge);
         }
 
-        .market-status {
-            font-size: 12px;
-            color: #888888;
-            background: #111111;
-            padding: 6px 14px;
-            border: 1px solid #222222;
-            border-radius: 2px;
-            letter-spacing: 0.3px;
+        .sessions {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding: 0 8px;
         }
 
-        .market-status.open {
-            color: #00ff41;
-            border-color: #00ff41;
+        .session,
+        .update-time {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 1px;
+            min-width: 84px;
+            padding: 0 12px;
         }
 
-        .market-status.closed {
-            color: #888888;
-            border-color: #222222;
+        .update-time {
+            min-width: 106px;
+            padding: 0 20px;
         }
 
+        .session-name,
+        .panel-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-tertiary);
+        }
+
+        .session-name::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-tertiary);
+            opacity: 0.6;
+        }
+
+        .session.open .session-name {
+            color: var(--green);
+        }
+
+        .session.open .session-name::before {
+            background: var(--green);
+            opacity: 1;
+            animation: pulse 2.4s ease-in-out infinite;
+        }
+
+        .session-time,
+        .update-time-value {
+            font-size: 14px;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(11, 122, 51, 0.5); }
+            50% { box-shadow: 0 0 0 5px rgba(11, 122, 51, 0); }
+        }
+
+        .theme-toggle {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 78px;
+            padding: 0 15px;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .theme-toggle:focus-visible {
+            outline: 2px solid var(--text);
+            outline-offset: 2px;
+        }
+
+        .theme-toggle svg {
+            position: relative;
+            z-index: 1;
+            width: 16px;
+            height: 16px;
+        }
+
+        .theme-thumb {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--thumb);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+            transition: transform 0.45s var(--spring);
+        }
+
+        .theme-toggle[aria-checked="true"] .theme-thumb {
+            transform: translateX(32px);
+        }
+
+        /* ---------- Layout ---------- */
         .grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 28px;
+            grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+            gap: 14px;
             flex: 1;
             min-height: 0;
-            overflow: hidden;
         }
 
         .assets {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: repeat(3, 1fr);
-            gap: 12px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            /* Written out in full: browsers can't animate to the expanded rows from repeat() */
+            grid-template-rows: 1fr 1fr 1fr;
+            gap: 14px;
             min-height: 0;
             height: 100%;
+            transition: grid-template-rows 0.45s var(--card-ease);
         }
 
+        /* ---------- Asset cards ---------- */
         .asset-card {
-            background: #0a0a0a;
-            border: 1px solid #222222;
-            border-radius: 2px;
-            padding: 18px 20px;
+            padding: 16px 20px;
+            --card-gap: 6px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            gap: var(--card-gap);
             overflow: hidden;
             min-height: 0;
-            transition: border-color 0.3s ease;
+            cursor: pointer;
+            transition: transform 0.45s var(--spring);
+        }
+
+        .asset-card:focus-visible {
+            outline: 2px solid var(--text);
+            outline-offset: 2px;
+        }
+
+        .asset-chart {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 0;
+            overflow: hidden;
+            cursor: default;
+        }
+
+        .asset-chart.entering {
+            animation: chart-in 0.45s var(--card-ease) both;
+        }
+
+        .asset-chart.leaving {
+            animation: chart-out 0.45s var(--card-ease) both;
+        }
+
+        /* Grows and shrinks from nothing, so the card's contents glide instead of jumping */
+        @keyframes chart-in {
+            from {
+                opacity: 0;
+                flex-grow: 0;
+                height: 0;
+                margin-top: calc(-1 * var(--card-gap));
+            }
+        }
+
+        @keyframes chart-out {
+            to {
+                opacity: 0;
+                flex-grow: 0;
+                height: 0;
+                margin-top: calc(-1 * var(--card-gap));
+            }
+        }
+
+        .chart-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .range-toggle {
+            display: flex;
+            gap: 2px;
+            padding: 2px;
+            border-radius: 999px;
+            background: var(--pill);
+        }
+
+        .range-toggle button {
+            min-width: 40px;
+            padding: 3px 10px;
+            border: none;
+            border-radius: 999px;
+            font: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: none;
+            cursor: pointer;
+        }
+
+        .range-toggle button.active {
+            color: var(--text);
+            background: var(--thumb);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+        }
+
+        .chart-change {
+            font-size: 13px;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .chart-change.green,
+        .chart-line.green {
+            color: var(--green);
+        }
+
+        .chart-change.red,
+        .chart-line.red {
+            color: var(--red);
+        }
+
+        .chart-line {
+            flex: 1;
+            width: 100%;
+            min-height: 0;
+        }
+
+        .chart-line polyline {
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+        }
+
+        .chart-line polygon {
+            fill: currentColor;
+            opacity: 0.1;
+        }
+
+        .chart-empty {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60px;
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        .asset-card:hover {
+            transform: translateY(-2px) scale(1.008);
         }
 
         .asset-card.up {
-            border-color: #00ff41;
+            --glass-tint: radial-gradient(90% 110% at 100% 0%, var(--up-tint), transparent 62%);
         }
 
         .asset-card.down {
-            border-color: #ff0040;
+            --glass-tint: radial-gradient(90% 110% at 100% 0%, var(--down-tint), transparent 62%);
         }
 
         .asset-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .asset-name {
-            font-size: 16px;
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 2px 8px;
+            min-width: 0;
+            font-size: 15px;
             font-weight: 600;
-            color: #ffffff;
-            letter-spacing: 0.3px;
+            letter-spacing: -0.01em;
         }
 
         .asset-name .ticker {
-            color: #666666;
-            font-weight: 400;
+            color: var(--text-tertiary);
+            font-weight: 500;
             font-size: 12px;
-            margin-left: 8px;
         }
 
         .asset-price {
-            font-size: 20px;
+            font-size: clamp(26px, 4.6vh, 42px);
             font-weight: 600;
-            color: #ffffff;
-            letter-spacing: 0.3px;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            font-variant-numeric: tabular-nums;
+            margin-block: auto;
         }
 
         .change-badge {
-            font-size: 14px;
+            flex-shrink: 0;
+            font-size: 13px;
             font-weight: 600;
-            padding: 2px 12px;
-            border-radius: 2px;
-            margin-left: 10px;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: var(--pill);
         }
 
         .change-badge.green {
-            color: #00ff41;
-            background: #001a08;
-            border: 1px solid #00ff41;
+            color: var(--green);
+            background: var(--up-pill);
         }
 
         .change-badge.red {
-            color: #ff0040;
-            background: #1a0006;
-            border: 1px solid #ff0040;
+            color: var(--red);
+            background: var(--down-pill);
         }
 
         .timeframes {
-            display: flex;
-            gap: 14px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-            font-size: 12px;
-            color: #666666;
-            letter-spacing: 0.2px;
-            border-top: 1px solid #111111;
-            padding-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            padding-top: 8px;
+            border-top: 0.5px solid var(--hairline);
+            font-size: 13px;
+            font-weight: 500;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-secondary);
         }
 
-        .timeframes span {
+        .timeframes > span {
             display: flex;
-            gap: 5px;
-            align-items: center;
+            flex-direction: column;
+            gap: 1px;
         }
 
         .timeframes .label {
-            color: #444444;
-            font-weight: 400;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-tertiary);
         }
 
         .timeframes .val-green {
-            color: #00ff41;
-            font-weight: 500;
+            color: var(--green);
         }
 
         .timeframes .val-red {
-            color: #ff0040;
-            font-weight: 500;
+            color: var(--red);
         }
 
         .last-updated {
-            font-size: 10px;
-            color: #444444;
-            margin-top: 6px;
-            letter-spacing: 0.2px;
+            max-height: 16px;
+            overflow: hidden;
+            font-size: 11px;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-tertiary);
+            transition: max-height 0.45s var(--card-ease), opacity 0.45s var(--card-ease), margin-top 0.45s var(--card-ease);
         }
 
         .cached-badge {
-            font-size: 9px;
-            color: #666666;
-            background: #111111;
-            padding: 2px 8px;
-            border: 1px solid #222222;
-            border-radius: 2px;
-            margin-left: 8px;
-            letter-spacing: 0.5px;
+            align-self: center;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--pill);
+            padding: 2px 7px;
+            border-radius: 999px;
         }
 
+        /* ---------- News ---------- */
         .news-section {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
             min-height: 0;
             height: 100%;
         }
 
         .news-box {
-            background: #0a0a0a;
-            border: 1px solid #222222;
-            border-radius: 2px;
-            padding: 18px 20px;
+            padding: 18px 8px 0 20px;
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -255,14 +626,18 @@
 
         .news-box h3 {
             flex-shrink: 0;
-            font-size: 13px;
+            font-size: 17px;
             font-weight: 600;
-            color: #888888;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #111111;
-            text-transform: uppercase;
+            letter-spacing: -0.015em;
+            padding-bottom: 6px;
+        }
+
+        .news-box h3 small {
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0;
+            color: var(--text-tertiary);
+            margin-left: 4px;
         }
 
         .news-list {
@@ -270,11 +645,14 @@
             -webkit-overflow-scrolling: touch;
             min-height: 0;
             flex: 1;
+            padding: 0 12px 14px 0;
+            -webkit-mask-image: linear-gradient(#000 calc(100% - 26px), transparent);
+            mask-image: linear-gradient(#000 calc(100% - 26px), transparent);
         }
 
         .news-item {
-            padding: 10px 0;
-            border-bottom: 1px solid #111111;
+            padding: 11px 0;
+            border-bottom: 0.5px solid var(--hairline);
         }
 
         .news-item:last-child {
@@ -282,78 +660,218 @@
         }
 
         .news-item .title {
-            font-size: 13px;
-            font-weight: 400;
-            line-height: 1.5;
-            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.35;
+            letter-spacing: -0.005em;
             cursor: default;
-            letter-spacing: 0.2px;
+        }
+
+        .news-item .meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
         }
 
         .news-item .source {
-            font-size: 10px;
-            color: #444444;
-            margin-top: 4px;
-            display: block;
-            letter-spacing: 0.2px;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 12px;
+            color: var(--text-tertiary);
         }
 
         .news-item .impact {
-            display: inline-block;
-            font-size: 9px;
+            flex-shrink: 0;
+            font-size: 11px;
             font-weight: 600;
-            text-transform: uppercase;
-            padding: 2px 10px;
-            border-radius: 2px;
-            margin-top: 5px;
-            letter-spacing: 0.5px;
+            padding: 2px 8px;
+            border-radius: 999px;
         }
 
         .impact.high {
-            background: #1a0006;
-            color: #ff0040;
-            border: 1px solid #ff0040;
+            background: var(--down-pill);
+            color: var(--red);
         }
 
         .impact.medium {
-            background: #1a1a00;
-            color: #888888;
-            border: 1px solid #444444;
+            background: var(--pill);
+            color: var(--text-secondary);
+        }
+
+        /* ---------- Economic events ---------- */
+        .event-item {
+            display: grid;
+            grid-template-columns: 62px minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 0.5px solid var(--hairline);
+        }
+
+        .event-item:last-child {
+            border-bottom: none;
+        }
+
+        .event-item.past {
+            opacity: 0.6;
+        }
+
+        .event-when {
+            display: flex;
+            flex-direction: column;
+            font-size: 12px;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-tertiary);
+        }
+
+        .event-when strong {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .event-item .title {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.3;
+            letter-spacing: -0.005em;
+        }
+
+        .event-values {
+            margin-top: 3px;
+            font-size: 12px;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-tertiary);
+        }
+
+        .event-item .impact {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 999px;
+        }
+
+        .impact.next {
+            background: var(--up-pill);
+            color: var(--green);
         }
 
         .loading {
-            color: #444444;
-            font-size: 13px;
-            padding: 6px 0;
-            letter-spacing: 0.2px;
+            color: var(--text-tertiary);
+            font-size: 14px;
+            padding: 8px 0;
         }
 
-        @media (max-width: 1000px) {
-            .grid {
-                grid-template-columns: 1.4fr 1fr;
-                gap: 18px;
+        @media (min-width: 1001px) and (min-height: 641px) {
+            .assets[data-expanded-row="0"] { grid-template-rows: 1.7fr 1fr 1fr; }
+            .assets[data-expanded-row="1"] { grid-template-rows: 1fr 1.7fr 1fr; }
+            .assets[data-expanded-row="2"] { grid-template-rows: 1fr 1fr 1.7fr; }
+
+            /* The other cards get shorter, so they drop this line to keep everything in view */
+            .assets[data-expanded-row] .asset-card:not(.expanded) .last-updated {
+                max-height: 0;
+                opacity: 0;
+                margin-top: calc(-1 * var(--card-gap));
+            }
+        }
+
+        /* ---------- Smaller screens scroll instead of squeezing ---------- */
+        @media (max-width: 1000px), (max-height: 640px) {
+            body {
+                display: block;
+                height: auto;
+                min-height: 100%;
+                overflow: auto;
             }
             .dashboard {
-                padding: 20px;
+                height: auto;
+                overflow: visible;
+            }
+            .grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+            .assets {
+                grid-template-rows: none;
+                height: auto;
+            }
+            .asset-card {
+                --card-gap: 12px;
+            }
+            .asset-chart {
+                flex: none;
+                height: 150px;
+            }
+            .asset-price {
+                font-size: 32px;
+            }
+            .news-section {
+                height: auto;
+            }
+            .news-box {
+                flex: none;
+                height: 440px;
             }
         }
 
         @media (max-width: 600px) {
-            .asset-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-            .timeframes {
-                font-size: 11px;
-                gap: 8px;
-            }
-            .header h1 {
-                font-size: 20px;
+            body {
+                padding-left: 12px;
+                padding-right: 12px;
             }
             .assets {
-                grid-template-columns: 1fr;
-                grid-template-rows: repeat(6, 1fr);
+                grid-template-columns: minmax(0, 1fr);
+            }
+            .sessions {
+                order: 3;
+                width: 100%;
+            }
+            .session {
+                flex: 1;
+                min-width: 0;
+                padding: 0 6px;
+            }
+            .theme-toggle {
+                position: absolute;
+                top: 10px;
+                right: 14px;
+            }
+            .header-right {
+                margin-right: 86px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .asset-card,
+            .assets {
+                transition: none;
+            }
+            .asset-chart.entering,
+            .asset-chart.leaving {
+                animation: none;
+            }
+            .assets .last-updated {
+                transition: none;
+            }
+            .asset-card:hover {
+                transform: none;
+            }
+            .session.open .session-name::before {
+                animation: none;
+            }
+            .theme-toggle .theme-thumb {
+                transition: none;
+            }
+        }
+
+        @media (prefers-reduced-transparency: reduce) {
+            .glass {
+                -webkit-backdrop-filter: none;
+                backdrop-filter: none;
+                background: var(--glass-tint, linear-gradient(transparent, transparent)), var(--glass-solid);
             }
         }
 
@@ -365,12 +883,47 @@
 </head>
 <body>
 
+<canvas id="desertBg" aria-hidden="true"></canvas>
+
 <div class="dashboard" id="app">
-    <div class="header">
-        <h1>MARKET DASHBOARD</h1>
+    <div class="header glass">
+        <h1>
+            <svg class="logo" viewBox="0 0 64 64" role="img" aria-label="Market Dashboard">
+                <defs>
+                    <linearGradient id="logoSky" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" style="stop-color: var(--logo-sky-top)" />
+                        <stop offset="0.72" style="stop-color: var(--logo-sky-bottom)" />
+                    </linearGradient>
+                    <clipPath id="logoShape"><circle cx="32" cy="32" r="32" /></clipPath>
+                </defs>
+                <g clip-path="url(#logoShape)">
+                    <rect width="64" height="64" fill="url(#logoSky)" />
+                    <circle class="logo-sun" cx="19" cy="19" r="8" fill="#fff3d6" />
+                    <g class="logo-moon" fill="#f2f1ea">
+                        <path d="M23 11a9 9 0 1 0 5.5 13.5A7.5 7.5 0 0 1 23 11z" />
+                        <circle cx="35" cy="9" r="1" />
+                        <circle cx="14" cy="10" r="1" />
+                        <circle cx="42" cy="17" r="0.9" />
+                    </g>
+                    <path d="M0 45C13 37 25 37 38 43S56 50 64 44V64H0Z" style="fill: var(--logo-far-dune)" />
+                    <path d="M0 59C14 49 30 46 42 51S58 57 64 54V64H0Z" style="fill: var(--logo-near-dune)" />
+                    <path d="M9 46L21 37L30 42L42 27L51 18" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--logo-line)" />
+                    <circle cx="51" cy="18" r="4.2" style="fill: var(--logo-line)" />
+                </g>
+                <circle cx="32" cy="32" r="31.5" fill="none" stroke="#ffffff" stroke-opacity="0.45" />
+            </svg>
+        </h1>
+        <div class="sessions header-panel" id="sessions"></div>
         <div class="header-right">
-            <span class="market-status" id="marketStatus">⏳ CHECKING</span>
-            <div class="update-time" id="updateTime">⏳ LOADING</div>
+            <div class="update-time header-panel">
+                <span class="panel-label">Prices from</span>
+                <span class="update-time-value" id="updateTime">Loading</span>
+            </div>
+            <button type="button" class="theme-toggle header-panel" id="themeToggle" role="switch" aria-checked="false" aria-label="Night mode">
+                <span class="theme-thumb"></span>
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 14.2A9 9 0 0 1 9.8 3a9 9 0 1 0 11.2 11.2z"/></svg>
+            </button>
         </div>
     </div>
 
@@ -380,13 +933,13 @@
         </div>
 
         <div class="news-section">
-            <div class="news-box" id="newsToday">
-                <h3>📰 TODAY</h3>
+            <div class="news-box glass" id="newsToday">
+                <h3>Today <small id="todayDate"></small></h3>
                 <div class="news-list"><div class="loading">Loading top stories...</div></div>
             </div>
-            <div class="news-box" id="newsWeek">
-                <h3>📆 THIS WEEK • HIGH IMPACT</h3>
-                <div class="news-list"><div class="loading">Loading weekly stories...</div></div>
+            <div class="news-box glass" id="weekEvents">
+                <h3>This Week <small><span id="weekDates"></span> · US Events</small></h3>
+                <div class="news-list"><div class="loading">Loading this week's events...</div></div>
             </div>
         </div>
     </div>
@@ -395,6 +948,27 @@
 <script>
     // ============================================================
     //  CONFIG - ALL ASSETS USE YAHOO FINANCE
+    //
+    //  To swap in your own stock, index, crypto or future, change a line below:
+    //    id:     any short name, different for each line
+    //    label:  the name shown on the card
+    //    symbol: the Yahoo Finance ticker. Search for it on finance.yahoo.com,
+    //            it's the code shown next to the name.
+    //
+    //  Examples of the different kinds of ticker:
+    //    Stock:   { id: 'AAPL',  label: 'Apple',    symbol: 'AAPL' }
+    //    Index:   { id: 'SPX',   label: 'S&P 500',  symbol: '^GSPC' }
+    //    Crypto:  { id: 'ETH',   label: 'Ethereum', symbol: 'ETH-USD' }
+    //    Future:  { id: 'GOLD',  label: 'Gold',     symbol: 'GC=F' }
+    //
+    //  Only this list needs editing: scripts/fetch_prices.py reads the tickers
+    //  from here. New tickers show "—" until that GitHub job next runs, about
+    //  5-15 minutes after you push the change.
+    //
+    //  The page is laid out for 6 cards, 2 per row. To use a different number,
+    //  also add or remove a "1fr" in "grid-template-rows: 1fr 1fr 1fr" under
+    //  .assets so there's one per row, and do the same in the data-expanded-row
+    //  rules, adding a rule for each new row.
     // ============================================================
     const ASSETS = [
         { id: 'ES',   label: 'ES Futures',  symbol: 'ES=F' },
@@ -414,7 +988,7 @@
         if (n === undefined || n === null || isNaN(n)) return '—';
         if (n >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
         if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
-        if (n >= 1e3) return '$' + n.toFixed(2);
+        if (n >= 1) return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         return '$' + n.toFixed(4);
     }
 
@@ -439,73 +1013,149 @@
         return Math.floor(hrs / 24) + 'd ago';
     }
 
-    function isMarketOpen() {
-        const now = new Date();
-        const day = now.getDay();
-        const hour = now.getHours();
-        const minute = now.getMinutes();
-        const time = hour + minute / 60;
-        if (day >= 1 && day <= 5) {
-            if (time >= 9.5 && time < 16) {
-                return true;
-            }
+    function getZonedTime(timeZone) {
+        const parts = new Intl.DateTimeFormat('en-US', {
+            timeZone,
+            year: 'numeric', month: 'numeric', day: 'numeric',
+            weekday: 'short', hour: 'numeric', minute: 'numeric', hourCycle: 'h23',
+        }).formatToParts(new Date());
+        const part = (type) => parts.find(p => p.type === type).value;
+        return {
+            year: Number(part('year')),
+            month: Number(part('month')) - 1,
+            date: Number(part('day')),
+            day: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(part('weekday')),
+            time: Number(part('hour')) + Number(part('minute')) / 60,
+        };
+    }
+
+    // Day of the month for the nth given weekday, e.g. 3rd Monday. n = -1 means the last one.
+    function nthWeekday(year, month, weekday, n) {
+        if (n > 0) {
+            const first = new Date(Date.UTC(year, month, 1)).getUTCDay();
+            return 1 + ((weekday - first + 7) % 7) + (n - 1) * 7;
         }
-        return false;
+        const lastDate = new Date(Date.UTC(year, month + 1, 0));
+        return lastDate.getUTCDate() - ((lastDate.getUTCDay() - weekday + 7) % 7);
+    }
+
+    function easterSunday(year) {
+        const a = year % 19;
+        const b = Math.floor(year / 100);
+        const c = year % 100;
+        const d = Math.floor(b / 4);
+        const e = b % 4;
+        const f = Math.floor((b + 8) / 25);
+        const g = Math.floor((b - f + 1) / 3);
+        const h = (19 * a + b - d - g + 15) % 30;
+        const i = Math.floor(c / 4);
+        const k = c % 4;
+        const l = (32 + 2 * e + 2 * i - h - k) % 7;
+        const m = Math.floor((a + 11 * h + 22 * l) / 451);
+        const month = Math.floor((h + l - 7 * m + 114) / 31) - 1;
+        const date = ((h + l - 7 * m + 114) % 31) + 1;
+        return Date.UTC(year, month, date);
+    }
+
+    // Saturday holidays close the Friday before, Sunday holidays the Monday after
+    function observedDate(year, month, date) {
+        const d = new Date(Date.UTC(year, month, date));
+        if (d.getUTCDay() === 6) d.setUTCDate(date - 1);
+        if (d.getUTCDay() === 0) d.setUTCDate(date + 1);
+        return d.getTime();
+    }
+
+    function nyseHolidays(year) {
+        return [
+            // New Year's Day is the exception: a Saturday one isn't made up on the Friday
+            new Date(Date.UTC(year, 0, 1)).getUTCDay() === 6 ? null : observedDate(year, 0, 1),
+            Date.UTC(year, 0, nthWeekday(year, 0, 1, 3)),   // Martin Luther King Jr. Day
+            Date.UTC(year, 1, nthWeekday(year, 1, 1, 3)),   // Presidents' Day
+            easterSunday(year) - 2 * 24 * 60 * 60 * 1000,   // Good Friday
+            Date.UTC(year, 4, nthWeekday(year, 4, 1, -1)),  // Memorial Day
+            observedDate(year, 5, 19),                      // Juneteenth
+            observedDate(year, 6, 4),                       // Independence Day
+            Date.UTC(year, 8, nthWeekday(year, 8, 1, 1)),   // Labor Day
+            Date.UTC(year, 10, nthWeekday(year, 10, 4, 4)), // Thanksgiving
+            observedDate(year, 11, 25),                     // Christmas
+        ];
+    }
+
+    // 1pm close: the day after Thanksgiving, and July 3 and December 24 on weekdays
+    function isEarlyClose({ year, month, date, day }) {
+        if (month === 10 && date === nthWeekday(year, 10, 4, 4) + 1) return true;
+        return ((month === 6 && date === 3) || (month === 11 && date === 24)) && day >= 1 && day <= 4;
+    }
+
+    function isMarketOpen() {
+        const ny = getZonedTime('America/New_York');
+        if (ny.day === 0 || ny.day === 6) return false;
+        if (nyseHolidays(ny.year).includes(Date.UTC(ny.year, ny.month, ny.date))) return false;
+        return ny.time >= 9.5 && ny.time < (isEarlyClose(ny) ? 13 : 16);
+    }
+
+    // Hours are each exchange's own local time
+    const SESSIONS = [
+        { label: 'Sydney',   timeZone: 'Australia/Sydney', open: 10, close: 16 },
+        { label: 'Tokyo',    timeZone: 'Asia/Tokyo',       open: 9,  close: 15.5 },
+        { label: 'London',   timeZone: 'Europe/London',    open: 8,  close: 16.5 },
+        { label: 'New York', timeZone: 'America/New_York', isOpen: isMarketOpen },
+    ];
+
+    function isSessionOpen(session) {
+        if (session.isOpen) return session.isOpen();
+        const { day, time } = getZonedTime(session.timeZone);
+        return day >= 1 && day <= 5 && time >= session.open && time < session.close;
+    }
+
+    let sessionsHtml = '';
+
+    function renderSessions() {
+        const html = SESSIONS.map(session => {
+            const open = isSessionOpen(session);
+            const time = new Date().toLocaleTimeString([], {
+                timeZone: session.timeZone, hour: 'numeric', minute: '2-digit',
+            });
+            return `
+                <div class="session ${open ? 'open' : ''}" title="${session.label}: ${open ? 'open' : 'closed'}">
+                    <span class="session-name">${session.label}</span>
+                    <span class="session-time">${time}</span>
+                </div>
+            `;
+        }).join('');
+
+        // Only touch the page when something changed, so the pulse keeps running
+        if (html !== sessionsHtml) {
+            sessionsHtml = html;
+            document.getElementById('sessions').innerHTML = html;
+        }
     }
 
     // ============================================================
-    //  FETCH: CORS proxy helper
+    //  FETCH: Price file, written by .github/workflows/update-prices.yml
     // ============================================================
-    const CORS_PROXIES = [
-        (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-        (u) => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
-    ];
+    const PRICE_FILE_URL = 'https://raw.githubusercontent.com/musap0w3r-alt/Dashboard/data/prices.json';
+    const PRICES_STALE_AFTER_MS = 30 * 60 * 1000;
 
-    async function fetchViaProxy(url) {
-        let lastErr = null;
-        for (const buildProxyUrl of CORS_PROXIES) {
-            const proxyUrl = buildProxyUrl(url);
-            try {
-                const res = await fetch(proxyUrl);
-                if (res.ok) {
-                    const text = await res.text();
-                    let parsed;
-                    try {
-                        parsed = JSON.parse(text);
-                    } catch {
-                        lastErr = new Error(`Non-JSON response via ${proxyUrl.split('?')[0]}: ${text.slice(0, 150)}`);
-                        continue;
-                    }
-                    if (parsed?.chart?.error) {
-                        lastErr = new Error(`Yahoo error: ${parsed.chart.error.description || JSON.stringify(parsed.chart.error)}`);
-                        continue;
-                    }
-                    return { ok: true, json: async () => parsed };
-                }
-                const body = await res.text().catch(() => '');
-                lastErr = new Error(`Proxy ${proxyUrl.split('?')[0]} returned ${res.status}: ${body.slice(0, 150)}`);
-            } catch (e) {
-                lastErr = new Error(`Proxy ${proxyUrl.split('?')[0]} failed: ${e.message}`);
-            }
+    async function fetchPriceFile() {
+        try {
+            const res = await fetch(`${PRICE_FILE_URL}?t=${Date.now()}`);
+            if (!res.ok) throw new Error(`Price file returned ${res.status}`);
+            return await res.json();
+        } catch (e) {
+            console.warn('Price file error:', e.message);
+            return null;
         }
-        throw lastErr || new Error('All CORS proxies failed');
     }
 
     // ============================================================
     //  FETCH: Yahoo Finance
     // ============================================================
-    async function fetchYahoo(symbol) {
+    async function fetchYahoo(symbol, priceFile) {
         try {
-            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1y`;
-            const res = await fetchViaProxy(url);
-            
-            if (!res.ok) {
-                console.warn(`Yahoo API returned ${res.status} for ${symbol}`);
-                return priceCache[symbol] || null;
-            }
-            
-            const data = await res.json();
-            
+            const data = priceFile?.charts?.[symbol];
+            if (!data) throw new Error('Not in price file');
+
             if (!data.chart || !data.chart.result || data.chart.result.length === 0) {
                 console.warn(`No data returned for ${symbol}`);
                 return priceCache[symbol] || null;
@@ -608,8 +1258,13 @@
                 week: week,
                 month: month,
                 year: year,
-                cached: false,
-                timestamp: new Date().toISOString()
+                cached: Date.now() - new Date(priceFile.updatedAt).getTime() > PRICES_STALE_AFTER_MS,
+                timestamp: priceFile.updatedAt,
+                history: {
+                    day: data.history?.day,
+                    week: data.history?.week,
+                    year: closes.filter(c => c !== null && c !== undefined),
+                }
             };
 
             priceCache[symbol] = resultData;
@@ -651,46 +1306,44 @@
         return d;
     }
 
-    async function fetchAllNewsArticles() {
-        const feeds = [
-            'https://feeds.bloomberg.com/markets/news.rss',
-            'https://www.cnbc.com/id/100003114/device/rss/rss.html',
-        ];
-        const proxy = 'https://api.rss2json.com/v1/api.json?rss_url=';
-        let combined = [];
+    // Words that rule out a headline being foreign. Left out on purpose: short
+    // words shared with Spanish, Portuguese, French or German ('as', 'on', 'was').
+    const ENGLISH_WORDS = new Set([
+        'the', 'to', 'of', 'and', 'for', 'with', 'is', 'are', 'after', 'from', 'by',
+        'at', 'its', 'how', 'what', 'why', 'says', 'said', 'has', 'over', 'amid',
+        'that', 'this', 'it', 'you', 'your', 'could', 'may', 'more', 'than', 'into',
+        'billion', 'million', 'markets', 'stocks', 'shares', 'prices', 'rate', 'earnings',
+    ]);
 
-        for (const feed of feeds) {
-            try {
-                const feedUrl = encodeURIComponent(feed);
-                const res = await fetch(proxy + feedUrl);
-                const data = await res.json();
-                if (data.status === 'ok' && data.items && data.items.length > 0) {
-                    combined = combined.concat(data.items.map(item => ({
-                        title: item.title || 'Untitled',
-                        source: item.author || 'Market Feed',
-                        url: item.link,
-                        publishedAt: item.pubDate,
-                        description: item.description,
-                    })));
-                }
-            } catch (feedErr) {
-                console.warn('Feed error, trying next:', feedErr.message);
-                continue;
-            }
-        }
-        return combined;
+    function looksForeign(title) {
+        if (/[^\u0000-\u024F\u2000-\u20CF]/.test(title)) return true;
+        const words = title.toLowerCase().match(/[\p{L}']+/gu) || [];
+        return !words.some(word => ENGLISH_WORDS.has(word));
     }
 
-    function fallbackNews() {
-        const now = Date.now();
-        return [
-            { title: 'Markets await Federal Reserve signals', source: 'Market Update', publishedAt: new Date(now - 2 * 60 * 60 * 1000).toISOString() },
-            { title: 'Tech sector leads gains today', source: 'Market Update', publishedAt: new Date(now - 6 * 60 * 60 * 1000).toISOString() },
-            { title: 'Oil prices steady amid geopolitical tensions', source: 'Market Update', publishedAt: new Date(now - 3 * 24 * 60 * 60 * 1000).toISOString() },
-            { title: 'Inflation data beats expectations', source: 'Market Update', publishedAt: new Date(now - 5 * 60 * 60 * 1000).toISOString() },
-            { title: 'Jobs report shows strong growth', source: 'Market Update', publishedAt: new Date(now - 2 * 24 * 60 * 60 * 1000).toISOString() },
-            { title: 'Central banks coordinate policy action', source: 'Market Update', publishedAt: new Date(now - 3 * 24 * 60 * 60 * 1000).toISOString() },
-        ];
+    const translatedTitles = new Map();
+
+    async function translateTitle(title) {
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=${encodeURIComponent(title)}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Translate returned ${res.status}`);
+        const data = await res.json();
+        return data[0].map(segment => segment[0]).join('');
+    }
+
+    // Anything that can't be translated is dropped, and retried on the next refresh
+    async function translateArticles(articles) {
+        const pending = new Set(articles.map(a => a.title).filter(t => looksForeign(t) && !translatedTitles.has(t)));
+        await Promise.all([...pending].map(async (title) => {
+            try {
+                translatedTitles.set(title, await translateTitle(title));
+            } catch (e) {
+                console.warn('Translate error:', e.message);
+            }
+        }));
+        return articles
+            .filter(a => !looksForeign(a.title) || translatedTitles.has(a.title))
+            .map(a => ({ ...a, title: translatedTitles.get(a.title) || a.title }));
     }
 
     function classifyNews(articles) {
@@ -718,28 +1371,73 @@
         return { today, week };
     }
 
-    async function fetchNewsData() {
+    async function fetchNewsData(priceFile) {
         try {
-            const articles = await fetchAllNewsArticles();
-            if (articles.length > 0) {
-                newsCache = articles;
-                return classifyNews(articles);
-            }
-            const fallback = fallbackNews();
-            newsCache = fallback;
-            return classifyNews(fallback);
+            const articles = await translateArticles(priceFile?.news || []);
+            if (articles.length > 0) newsCache = articles;
         } catch (e) {
             console.warn('News fetch error:', e);
-            const fallback = fallbackNews();
-            newsCache = fallback;
-            return classifyNews(fallback);
         }
+        return newsCache ? classifyNews(newsCache) : null;
     }
 
     // ============================================================
     //  RENDER
     // ============================================================
+    const CHART_RANGES = [
+        { id: 'day',  label: '24H' },
+        { id: 'week', label: '1W' },
+        { id: 'year', label: '1Y' },
+    ];
+
+    let lastAssetData = {};
+    const CARD_ANIMATION_MS = 450;
+
+    let assetItems = {};
+    let expandedAsset = null;
+    let chartRange = 'day';
+
+    function renderChart(item, animation = '') {
+        const buttons = CHART_RANGES.map(range => `
+            <button type="button" class="${range.id === chartRange ? 'active' : ''}" data-range="${range.id}">${range.label}</button>
+        `).join('');
+        const closes = item.history?.[chartRange] || [];
+
+        if (closes.length < 2) {
+            return `
+                <div class="asset-chart ${animation}">
+                    <div class="chart-controls"><div class="range-toggle">${buttons}</div></div>
+                    <div class="chart-empty">Chart unavailable</div>
+                </div>
+            `;
+        }
+
+        const low = Math.min(...closes);
+        const spread = (Math.max(...closes) - low) || 1;
+        const points = closes.map((close, i) => {
+            const x = (i / (closes.length - 1)) * 100;
+            const y = 38 - ((close - low) / spread) * 36;
+            return `${x.toFixed(2)},${y.toFixed(2)}`;
+        }).join(' ');
+        const rangeChange = ((closes[closes.length - 1] - closes[0]) / closes[0]) * 100;
+        const cls = changeClass(rangeChange);
+
+        return `
+            <div class="asset-chart ${animation}">
+                <div class="chart-controls">
+                    <div class="range-toggle">${buttons}</div>
+                    <span class="chart-change ${cls}">${formatChange(rangeChange)}</span>
+                </div>
+                <svg class="chart-line ${cls}" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">
+                    <polygon points="0,40 ${points} 100,40"></polygon>
+                    <polyline points="${points}" vector-effect="non-scaling-stroke"></polyline>
+                </svg>
+            </div>
+        `;
+    }
+
     function renderAssets(assetData) {
+        lastAssetData = assetData;
         const container = document.getElementById('assetsContainer');
         let html = '';
 
@@ -760,6 +1458,7 @@
                     change: d.change,
                     cached: d.cached || false,
                     timestamp: d.timestamp,
+                    history: d.history,
                 });
             } else {
                 all.push({
@@ -786,27 +1485,29 @@
             const priceStr = hasError ? '—' : formatUSD(item.price);
             const cardDirectionClass = hasError ? '' : (change >= 0 ? 'up' : 'down');
             
-            const cachedBadge = item.cached ? '<span class="cached-badge">CACHED</span>' : '';
+            const cachedBadge = item.cached ? '<span class="cached-badge">Cached</span>' : '';
             const timestampStr = item.timestamp ? `Updated: ${new Date(item.timestamp).toLocaleTimeString()}` : '';
 
+            const isExpanded = item.id === expandedAsset;
+            assetItems[item.id] = item;
+
             html += `
-                <div class="asset-card ${cardDirectionClass}">
+                <div class="asset-card glass ${cardDirectionClass} ${isExpanded ? 'expanded' : ''}" data-id="${item.id}" role="button" tabindex="0" aria-expanded="${isExpanded}">
                     <div class="asset-row">
                         <div class="asset-name">
                             ${item.label}
                             <span class="ticker">${item.ticker}</span>
                             ${cachedBadge}
                         </div>
-                        <div style="display: flex; align-items: center;">
-                            <span class="asset-price">${priceStr}</span>
-                            <span class="change-badge ${hasError ? '' : cls}">${changeStr}</span>
-                        </div>
+                        <span class="change-badge ${hasError ? '' : cls}">${changeStr}</span>
                     </div>
+                    <div class="asset-price">${priceStr}</div>
+                    ${isExpanded ? renderChart(item) : ''}
                     <div class="timeframes">
-                        <span><span class="label">DAY</span> <span class="val-${hasError ? '' : cls}">${hasError ? '—' : formatChange(change)}</span></span>
-                        <span><span class="label">WEEK</span> <span class="val-${changeClass(item.week)}">${hasError ? '—' : formatChange(item.week)}</span></span>
-                        <span><span class="label">MONTH</span> <span class="val-${changeClass(item.month)}">${hasError ? '—' : formatChange(item.month)}</span></span>
-                        <span><span class="label">YEAR</span> <span class="val-${changeClass(item.year)}">${hasError ? '—' : formatChange(item.year)}</span></span>
+                        <span><span class="label">Day</span> <span class="val-${hasError ? '' : cls}">${hasError ? '—' : formatChange(change)}</span></span>
+                        <span><span class="label">Week</span> <span class="val-${changeClass(item.week)}">${hasError ? '—' : formatChange(item.week)}</span></span>
+                        <span><span class="label">Month</span> <span class="val-${changeClass(item.month)}">${hasError ? '—' : formatChange(item.month)}</span></span>
+                        <span><span class="label">Year</span> <span class="val-${changeClass(item.year)}">${hasError ? '—' : formatChange(item.year)}</span></span>
                     </div>
                     ${timestampStr ? `<div class="last-updated">${timestampStr}</div>` : ''}
                 </div>
@@ -814,51 +1515,167 @@
         });
 
         container.innerHTML = html;
+
+        updateExpandedRow();
     }
+
+    // Cards sit two to a row, and the expanded card's row takes the extra height
+    function updateExpandedRow() {
+        const container = document.getElementById('assetsContainer');
+        const expandedIndex = ASSETS.findIndex(a => a.id === expandedAsset);
+        if (expandedIndex >= 0) {
+            container.dataset.expandedRow = Math.floor(expandedIndex / 2);
+        } else {
+            delete container.dataset.expandedRow;
+        }
+    }
+
+    function collapseCard(card) {
+        card.classList.remove('expanded');
+        card.setAttribute('aria-expanded', 'false');
+        const chart = card.querySelector('.asset-chart');
+        chart.classList.remove('entering');
+        chart.classList.add('leaving');
+        setTimeout(() => chart.remove(), CARD_ANIMATION_MS);
+    }
+
+    function expandCard(card) {
+        card.classList.add('expanded');
+        card.setAttribute('aria-expanded', 'true');
+        card.querySelector('.asset-chart')?.remove();
+        card.querySelector('.asset-price')
+            .insertAdjacentHTML('afterend', renderChart(assetItems[card.dataset.id], 'entering'));
+    }
+
+    // Changes the cards in place rather than rebuilding them, so both directions can animate
+    function toggleAsset(id) {
+        const cardFor = (assetId) => document.querySelector(`.asset-card[data-id="${assetId}"]`);
+        if (expandedAsset) collapseCard(cardFor(expandedAsset));
+        expandedAsset = expandedAsset === id ? null : id;
+        if (expandedAsset) expandCard(cardFor(expandedAsset));
+        updateExpandedRow();
+    }
+
+    function setupAssetCards() {
+        const container = document.getElementById('assetsContainer');
+
+        container.addEventListener('click', (e) => {
+            const rangeButton = e.target.closest('[data-range]');
+            if (rangeButton) {
+                chartRange = rangeButton.dataset.range;
+                rangeButton.closest('.asset-chart').outerHTML = renderChart(assetItems[expandedAsset]);
+                return;
+            }
+            // Clicks on the chart shouldn't close it; anywhere else on the card does
+            const card = e.target.closest('.asset-card');
+            if (card && !e.target.closest('.asset-chart')) toggleAsset(card.dataset.id);
+        });
+
+        container.addEventListener('keydown', (e) => {
+            if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.asset-card')) {
+                e.preventDefault();
+                const { id } = e.target.dataset;
+                toggleAsset(id);
+                // The cards were just rebuilt, so put keyboard focus back
+                document.querySelector(`.asset-card[data-id="${id}"]`).focus({ preventScroll: true });
+            }
+        });
+    }
+
+    const MAX_WEEK_HIGHLIGHTS = 2;
+    let eventsCache = null;
+    let eventsScrolled = false;
 
     function renderNews(articlesToday, articlesWeek) {
         const todayBox = document.getElementById('newsToday');
-        const weekBox = document.getElementById('newsWeek');
 
-        function renderDailyItems(articles, limit = 5) {
-            if (!articles || articles.length === 0) {
+        function renderDailyItems(articles) {
+            if (!articles) {
+                return '<div class="loading">News is unavailable right now.</div>';
+            }
+            if (articles.length === 0) {
                 return '<div class="loading">No stories today.</div>';
             }
             let html = '';
-            articles.slice(0, limit).forEach(a => {
+            articles.forEach(a => {
                 const isHigh = isHighImpact(a.title);
-                const impactLabel = isHigh ? 'HIGH IMPACT' : 'MEDIUM IMPACT';
+                const impactLabel = isHigh ? 'High Impact' : 'Medium Impact';
                 const impactClass = isHigh ? 'high' : 'medium';
                 html += `
                     <div class="news-item">
                         <div class="title">${a.title || 'Untitled'}</div>
-                        <span class="source">${a.source || 'Unknown'} · ${timeAgo(a.publishedAt)}</span>
-                        <span class="impact ${impactClass}">${impactLabel}</span>
+                        <div class="meta">
+                            <span class="source">${a.source || 'Unknown'} · ${timeAgo(a.publishedAt)}</span>
+                            <span class="impact ${impactClass}">${impactLabel}</span>
+                        </div>
                     </div>
                 `;
             });
             return html;
         }
 
-        function renderWeeklyItems(articles, limit = 5) {
-            if (!articles || articles.length === 0) {
-                return '<div class="loading">No high-impact stories this week.</div>';
-            }
-            let html = '';
-            articles.slice(0, limit).forEach(a => {
-                html += `
-                    <div class="news-item">
-                        <div class="title">${a.title || 'Untitled'}</div>
-                        <span class="source">${a.source || 'Unknown'} · ${timeAgo(a.publishedAt)}</span>
-                        <span class="impact high">HIGH IMPACT</span>
-                    </div>
-                `;
-            });
-            return html;
+        // High-impact stories from earlier in the week lead the list
+        const highlights = (articlesWeek || []).slice(0, MAX_WEEK_HIGHLIGHTS);
+        const articles = articlesToday ? [...highlights, ...articlesToday] : null;
+        todayBox.querySelector('.news-list').innerHTML = renderDailyItems(articles);
+    }
+
+    function renderEvents(events) {
+        const list = document.getElementById('weekEvents').querySelector('.news-list');
+        if (!events) {
+            list.innerHTML = '<div class="loading">Events are unavailable right now.</div>';
+            return;
+        }
+        if (events.length === 0) {
+            list.innerHTML = '<div class="loading">No major US events this week.</div>';
+            return;
         }
 
-        todayBox.querySelector('.news-list').innerHTML = renderDailyItems(articlesToday, 20);
-        weekBox.querySelector('.news-list').innerHTML = renderWeeklyItems(articlesWeek, 20);
+        const now = Date.now();
+        const nextIndex = events.findIndex(e => new Date(e.date).getTime() > now);
+        list.innerHTML = events.map((event, i) => {
+            const when = new Date(event.date);
+            const isPast = when.getTime() <= now;
+            const values = [
+                event.forecast && `Forecast ${event.forecast}`,
+                event.previous && `Previous ${event.previous}`,
+            ].filter(Boolean).join(' · ');
+            const tag = i === nextIndex
+                ? '<span class="impact next">Next</span>'
+                : `<span class="impact ${event.impact.toLowerCase()}">${event.impact}</span>`;
+            return `
+                <div class="event-item ${isPast ? 'past' : ''}">
+                    <div class="event-when">
+                        <strong>${when.toLocaleDateString('en-US', { weekday: 'short' })}</strong>
+                        ${when.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                    </div>
+                    <div>
+                        <div class="title">${event.title}</div>
+                        ${values ? `<div class="event-values">${values}</div>` : ''}
+                    </div>
+                    ${tag}
+                </div>
+            `;
+        }).join('');
+
+        // Start at the next event rather than the ones already gone
+        if (!eventsScrolled && nextIndex > 0) {
+            list.scrollTop = list.children[nextIndex].offsetTop - list.offsetTop;
+        }
+        eventsScrolled = true;
+    }
+
+    function renderNewsDates() {
+        const now = new Date();
+        const monday = getMonday(now);
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        const shortDate = { month: 'short', day: 'numeric' };
+
+        document.getElementById('todayDate').textContent =
+            now.toLocaleDateString('en-US', { weekday: 'short', ...shortDate });
+        document.getElementById('weekDates').textContent =
+            `${monday.toLocaleDateString('en-US', shortDate)} – ${sunday.toLocaleDateString('en-US', shortDate)}`;
     }
 
     // ============================================================
@@ -866,16 +1683,13 @@
     // ============================================================
     async function updateDashboard() {
         const timeEl = document.getElementById('updateTime');
-        const marketStatusEl = document.getElementById('marketStatus');
-        
-        const open = isMarketOpen();
-        marketStatusEl.textContent = open ? '● OPEN' : '● CLOSED';
-        marketStatusEl.className = `market-status ${open ? 'open' : 'closed'}`;
-        
-        timeEl.textContent = '⏳ UPDATING...';
+
+        timeEl.textContent = 'Updating...';
+        renderNewsDates();
 
         try {
-            const yahooPromises = ASSETS.map(asset => fetchYahoo(asset.symbol));
+            const priceFile = await fetchPriceFile();
+            const yahooPromises = ASSETS.map(asset => fetchYahoo(asset.symbol, priceFile));
             const yahooData = await Promise.all(yahooPromises);
 
             const assetResults = {};
@@ -883,23 +1697,349 @@
                 if (yahooData[i]) assetResults[asset.id] = yahooData[i];
             });
 
-            const newsData = await fetchNewsData();
-            const { today: todayNews, week: weekNews } = newsData;
+            const newsData = await fetchNewsData(priceFile);
+            const { today: todayNews, week: weekNews } = newsData || {};
 
             renderAssets(assetResults);
             renderNews(todayNews, weekNews);
 
-            const now = new Date();
-            timeEl.textContent = `UPDATED ${now.toLocaleTimeString()}`;
+            if (priceFile?.events) eventsCache = priceFile.events;
+            renderEvents(eventsCache);
+
+            timeEl.textContent = priceFile
+                ? new Date(priceFile.updatedAt).toLocaleTimeString()
+                : 'Unavailable';
         } catch (err) {
             console.error('Update error:', err);
-            timeEl.textContent = '⚠️ ERROR';
+            timeEl.textContent = 'Update failed';
         }
+    }
+
+    // ============================================================
+    //  DESERT BACKGROUND
+    // ============================================================
+    const DESERT_SHADER = `
+        precision highp float;
+        uniform vec2 uRes;
+        uniform float uTime;
+        uniform float uNight;
+
+        float hash(vec2 p) {
+            return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+        }
+
+        float noise(vec2 p) {
+            vec2 i = floor(p);
+            vec2 f = fract(p);
+            f = f * f * (3.0 - 2.0 * f);
+            return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+                       mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+        }
+
+        float fbm(vec2 p) {
+            float value = 0.0;
+            float amp = 0.5;
+            mat2 rot = mat2(0.8, 0.6, -0.6, 0.8);
+            for (int i = 0; i < 4; i++) {
+                value += amp * noise(p);
+                p = rot * p * 2.02;
+                amp *= 0.5;
+            }
+            return value;
+        }
+
+        // Jagged rock silhouette
+        float ridge(float x, float seed) {
+            float value = 0.0;
+            float amp = 0.55;
+            for (int i = 0; i < 5; i++) {
+                value += amp * (1.0 - abs(2.0 * noise(vec2(x, seed)) - 1.0));
+                x *= 2.03;
+                amp *= 0.47;
+            }
+            return value;
+        }
+
+        // Smooth sweeping dune crest that slowly reshapes
+        float dune(float x, float base, float amp, float phase, float t) {
+            return base + amp * (0.62 * cos(x * 1.7 + phase + t * 0.05)
+                               + 0.28 * cos(x * 3.1 - phase * 1.3 - t * 0.035)
+                               + 0.1 * sin(x * 5.3 + phase + t * 0.02));
+        }
+
+        vec3 sand(float x, float y, float crest, float base, float amp, float phase, float t) {
+            float below = crest - y;
+            float slope = (dune(x + 0.02, base, amp, phase, t) - crest) / 0.02;
+
+            // Lit where the dune faces the sun on the right, shaded where it turns away
+            float light = 0.5 + 0.5 * clamp(slope * 2.2 * exp(-below * 2.6) + 0.15, -1.0, 1.0);
+            vec3 color = mix(mix(vec3(0.71, 0.6, 0.48), vec3(0.2, 0.2, 0.23), uNight),
+                             mix(vec3(0.93, 0.85, 0.74), vec3(0.47, 0.47, 0.51), uNight), light);
+
+            // Fine wind ripples that creep across the surface
+            float wave = y + 0.03 * sin(x * 3.0 + y * 7.0) + 0.012 * fbm(vec2(x * 4.0, y * 9.0));
+            float ripple = sin(wave * 230.0 + x * 12.0 + t * 0.25);
+            return color * (1.0 + 0.022 * ripple * smoothstep(0.0, 0.06, below));
+        }
+
+        void main() {
+            vec2 uv = gl_FragCoord.xy / uRes;
+            float x = (uv.x - 0.5) * max(uRes.x / uRes.y, 1.0);
+            float y = uv.y;
+            float t = uTime;
+
+            // Sky: soft blue fading to peach at the horizon
+            vec3 color = mix(vec3(0.97, 0.84, 0.69), vec3(0.74, 0.84, 0.91), smoothstep(0.5, 0.74, y));
+            color = mix(color, vec3(0.5, 0.66, 0.82), smoothstep(0.7, 1.05, y));
+
+            // Night sky: navy above a mauve afterglow
+            vec3 nightSky = mix(vec3(0.46, 0.31, 0.35), vec3(0.15, 0.18, 0.26), smoothstep(0.5, 0.68, y));
+            nightSky = mix(nightSky, vec3(0.03, 0.1, 0.18), smoothstep(0.64, 1.0, y));
+            color = mix(color, nightSky, uNight);
+
+            // Twinkling stars
+            vec2 starGrid = gl_FragCoord.xy / uRes.y * 70.0;
+            vec2 starCell = floor(starGrid);
+            float starSeed = hash(starCell);
+            vec2 starPos = vec2(hash(starCell + 3.1), hash(starCell + 7.7)) * 0.7 + 0.15;
+            float star = smoothstep(0.1, 0.0, distance(fract(starGrid), starPos)) * step(0.82, starSeed);
+            float twinkle = 0.65 + 0.35 * sin(t * (0.6 + starSeed * 2.0) + starSeed * 60.0);
+            color += star * twinkle * uNight * smoothstep(0.6, 0.8, y) * vec3(0.9, 0.93, 1.0);
+
+            // Thin clouds drifting past
+            float cloud = fbm(vec2(x * 1.1 - t * 0.012, y * 6.0 + t * 0.004));
+            color = mix(color, vec3(1.0, 0.97, 0.93), smoothstep(0.5, 0.8, cloud) * smoothstep(0.54, 0.72, y) * 0.55 * (1.0 - uNight));
+
+            // Mountains in three layers, hazier with distance
+            float back = 0.5 + 0.13 * ridge(x * 1.3 + 3.0, 1.0);
+            float middle = 0.44 + 0.14 * ridge(x * 1.7 + 7.0, 2.0);
+            float front = 0.37 + 0.15 * ridge(x * 2.2 + 1.0, 3.0);
+            float rock = ridge(x * 5.0 + y * 3.0, 4.0 + y * 6.0);
+            if (y < back) color = mix(mix(vec3(0.74, 0.66, 0.61), vec3(0.67, 0.58, 0.53), rock * 0.6), vec3(0.25, 0.24, 0.27), uNight);
+            if (y < middle) color = mix(mix(vec3(0.63, 0.53, 0.46), vec3(0.51, 0.42, 0.36), rock * 0.75), mix(vec3(0.21, 0.21, 0.23), vec3(0.12, 0.12, 0.14), rock * 0.75), uNight);
+            if (y < front) color = mix(mix(vec3(0.54, 0.44, 0.36), vec3(0.37, 0.29, 0.24), rock * 0.85), mix(vec3(0.16, 0.16, 0.18), vec3(0.07, 0.07, 0.08), rock * 0.85), uNight);
+
+            // Warm haze at the foot of the mountains
+            color = mix(color, vec3(0.95, 0.83, 0.7), smoothstep(0.52, 0.3, y) * 0.45 * (1.0 - uNight));
+
+            // Dunes
+            float farCrest = dune(x, 0.3, 0.06, 2.4, t);
+            float nearCrest = dune(x, 0.2, 0.11, 0.3, t);
+            if (y < farCrest) color = sand(x, y, farCrest, 0.3, 0.06, 2.4, t);
+            if (y < nearCrest) color = sand(x, y, nearCrest, 0.2, 0.11, 0.3, t);
+
+            // Sand blowing off the crests
+            float gust = fbm(vec2(x * 2.4 - t * 0.2, y * 10.0 + t * 0.03));
+            float spray = exp(-abs(y - nearCrest) * 20.0) + 0.7 * exp(-abs(y - farCrest) * 24.0);
+            color = mix(color, mix(vec3(0.96, 0.89, 0.79), vec3(0.6, 0.6, 0.65), uNight), clamp(spray * smoothstep(0.42, 0.72, gust) * 0.55, 0.0, 0.6));
+
+            // Fine dither hides banding in the soft gradients
+            color += (hash(gl_FragCoord.xy + fract(uTime)) - 0.5) / 128.0;
+            gl_FragColor = vec4(color, 1.0);
+        }
+    `;
+
+    function startDesertBackground() {
+        const canvas = document.getElementById('desertBg');
+        const gl = canvas.getContext('webgl', { alpha: false, antialias: false, depth: false });
+        if (!gl) {
+            canvas.remove();
+            return;
+        }
+
+        function compile(type, source) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            return shader;
+        }
+
+        const program = gl.createProgram();
+        gl.attachShader(program, compile(gl.VERTEX_SHADER, 'attribute vec2 a; void main() { gl_Position = vec4(a, 0.0, 1.0); }'));
+        gl.attachShader(program, compile(gl.FRAGMENT_SHADER, DESERT_SHADER));
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+            canvas.remove();
+            return;
+        }
+        gl.useProgram(program);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+        const position = gl.getAttribLocation(program, 'a');
+        gl.enableVertexAttribArray(position);
+        gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+
+        const resLoc = gl.getUniformLocation(program, 'uRes');
+        const timeLoc = gl.getUniformLocation(program, 'uTime');
+        const nightLoc = gl.getUniformLocation(program, 'uNight');
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let lastFrame = 0;
+        let nightLevel = isNightMode() ? 1 : 0;
+
+        function draw(ms) {
+            // Eases towards the chosen mode so the toggle fades instead of snapping
+            const target = isNightMode() ? 1 : 0;
+            nightLevel = reducedMotion ? target : nightLevel + (target - nightLevel) * 0.1;
+            gl.uniform1f(nightLoc, nightLevel);
+            gl.uniform1f(timeLoc, 40 + ms / 1000);
+            gl.drawArrays(gl.TRIANGLES, 0, 3);
+        }
+
+        // Slightly under full size: most of it sits behind blurred glass
+        function resize() {
+            canvas.width = Math.ceil(window.innerWidth * 0.75);
+            canvas.height = Math.ceil(window.innerHeight * 0.75);
+            gl.viewport(0, 0, canvas.width, canvas.height);
+            gl.uniform2f(resLoc, canvas.width, canvas.height);
+            draw(performance.now());
+        }
+
+        function loop(ms) {
+            if (ms - lastFrame >= 33) {
+                lastFrame = ms;
+                draw(ms);
+            }
+            requestAnimationFrame(loop);
+        }
+
+        window.addEventListener('resize', resize);
+        canvas.addEventListener('webglcontextlost', () => canvas.remove());
+        resize();
+        if (!reducedMotion) requestAnimationFrame(loop);
+        redrawBackground = () => draw(performance.now());
+    }
+
+    // ============================================================
+    //  DAY / NIGHT
+    // ============================================================
+    let redrawBackground = () => {};
+
+    function isNightMode() {
+        return document.documentElement.dataset.theme === 'night';
+    }
+
+    // Used until the device shares its location, or if it never does
+    const DEFAULT_LOCATION = { lat: 52.37, lng: 4.9 }; // Amsterdam
+    const SUN_SEARCH_MINUTES = 48 * 60;
+
+    function readStored(key) {
+        try {
+            return JSON.parse(localStorage.getItem(key));
+        } catch {
+            return null;
+        }
+    }
+
+    function writeStored(key, value) {
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+        } catch {}
+    }
+
+    let sunLocation = readStored('sunLocation') || DEFAULT_LOCATION;
+
+    // Height of the sun above the horizon in degrees, from the standard low-precision solar formulas
+    function sunElevation(date, { lat, lng }) {
+        const rad = Math.PI / 180;
+        const days = date.getTime() / 86400000 - 10957.5; // days since Jan 1 2000, noon UTC
+        const meanAnomaly = (357.528 + 0.9856003 * days) * rad;
+        const longitude = (280.46 + 0.9856474 * days
+            + 1.915 * Math.sin(meanAnomaly) + 0.02 * Math.sin(2 * meanAnomaly)) * rad;
+        const tilt = (23.439 - 0.0000004 * days) * rad;
+        const declination = Math.asin(Math.sin(tilt) * Math.sin(longitude));
+        const rightAscension = Math.atan2(Math.cos(tilt) * Math.sin(longitude), Math.cos(longitude));
+        const siderealDegrees = 280.46061837 + 360.98564736629 * days;
+        const hourAngle = (siderealDegrees + lng) * rad - rightAscension;
+        return Math.asin(Math.sin(lat * rad) * Math.sin(declination)
+            + Math.cos(lat * rad) * Math.cos(declination) * Math.cos(hourAngle)) / rad;
+    }
+
+    // -0.833 degrees is the official sunrise/sunset height: the sun's upper edge, with air refraction
+    function isSunUp(time) {
+        return sunElevation(new Date(time), sunLocation) > -0.833;
+    }
+
+    function nextSunChange(from) {
+        const sunUp = isSunUp(from);
+        for (let minute = 1; minute <= SUN_SEARCH_MINUTES; minute++) {
+            const time = from + minute * 60000;
+            if (isSunUp(time) !== sunUp) return time;
+        }
+        return from + SUN_SEARCH_MINUTES * 60000; // Polar day or night: no sunrise or sunset to find
+    }
+
+    // Night after sunset and day after sunrise. A manual switch holds until the next one.
+    function syncThemeToSun() {
+        const manual = readStored('themeManual');
+        const useManual = manual && Date.now() < manual.until;
+        setNightMode(useManual ? manual.night : !isSunUp(Date.now()));
+    }
+
+    function switchThemeManually() {
+        const night = !isNightMode();
+        writeStored('themeManual', { night, until: nextSunChange(Date.now()) });
+        setNightMode(night);
+    }
+
+    function startThemeSchedule() {
+        syncThemeToSun();
+        setInterval(syncThemeToSun, 60000);
+
+        navigator.geolocation?.getCurrentPosition((position) => {
+            sunLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+            writeStored('sunLocation', sunLocation);
+            syncThemeToSun();
+        }, () => {}, { timeout: 10000, maximumAge: 24 * 60 * 60 * 1000 });
+    }
+
+    function setNightMode(night) {
+        if (night) {
+            document.documentElement.dataset.theme = 'night';
+        } else {
+            delete document.documentElement.dataset.theme;
+        }
+        document.getElementById('themeToggle').setAttribute('aria-checked', night);
+        try {
+            localStorage.setItem('theme', night ? 'night' : 'day');
+        } catch {}
+        redrawBackground();
+    }
+
+    // ============================================================
+    //  GLASS LIGHTING: panels catch the light near the pointer
+    // ============================================================
+    function startGlassLighting() {
+        let frame = 0;
+        let pointerX = 0;
+        let pointerY = 0;
+
+        window.addEventListener('pointermove', (e) => {
+            pointerX = e.clientX;
+            pointerY = e.clientY;
+            if (frame) return;
+            frame = requestAnimationFrame(() => {
+                frame = 0;
+                document.querySelectorAll('.glass').forEach(panel => {
+                    const rect = panel.getBoundingClientRect();
+                    panel.style.setProperty('--mx', `${pointerX - rect.left}px`);
+                    panel.style.setProperty('--my', `${pointerY - rect.top}px`);
+                });
+            });
+        }, { passive: true });
     }
 
     // ============================================================
     //  START
     // ============================================================
+    document.getElementById('themeToggle').addEventListener('click', switchThemeManually);
+    startThemeSchedule();
+    startDesertBackground();
+    startGlassLighting();
+    setupAssetCards();
+    renderSessions();
+    setInterval(renderSessions, 1000);
+    renderAssets({});
     updateDashboard();
     setInterval(updateDashboard, 120000);
 </script>
